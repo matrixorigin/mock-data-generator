@@ -1,0 +1,44 @@
+tables:
+- name: sample1
+  count: 100000
+  columns:
+  - name: id
+    type: int(0,1000)
+  - name: idcardnum
+    builtin: idcardnum
+  - name: phonenumber
+    builtin: phonenumber
+  - name: cellphone
+    builtin: cellphone
+  - name: email
+    builtin: email
+  - name: money
+    type: decimal(10,5)
+  - name: birthday
+    type: date
+  - name: lastupdate
+    type: datetime
+  - name: remark
+    type: varchar(10)
+
+#- name: sample2
+#  count: 10
+#  columns:
+#    - name: id
+#      type: int(0,1000)
+#    - name: idcardnum
+#      builtin: idcardnum
+#    - name: phonenumber
+#      builtin: phonenumber
+#    - name: cellphone
+#      builtin: cellphone
+#    - name: email
+#      builtin: email
+#    - name: money
+#      type: decimal(10,5)
+#    - name: birthday
+#      type: date
+#    - name: lastupdate
+#      type: datetime
+#    - name: remark
+#      type: varchar(10)

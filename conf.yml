@@ -1,0 +1,13 @@
+
+#field separator
+field_separator: ","
+
+#line separator
+line_separator: "\n"
+
+#escaped separator
+escape_separator: "\\"
+
+#enclose separator
+enclose_separator: "\""
+
