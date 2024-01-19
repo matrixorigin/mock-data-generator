@@ -181,7 +181,7 @@ public class Table implements Runnable{
                 }
             }
             writer.write(buffer.toString());
-            buffer.delete(1,buffer.length());
+            buffer.delete(0,buffer.length());
             writer.flush();
             writer.close();
             long end = System.currentTimeMillis();
