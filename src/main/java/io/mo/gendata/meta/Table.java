@@ -176,7 +176,7 @@ public class Table implements Runnable{
                 if(w_count >= CONFIG.BATCH_COUNT && w_count%CONFIG.BATCH_COUNT == 0) {
                     LOG.info(w_count + " records for table[" + name + "] has been generated ," + (int) (((double) w_count / count) * 100) + "% completed.");
                     writer.write(buffer.toString());
-                    buffer.delete(1,buffer.length());
+                    buffer.delete(0,buffer.length());
                     writer.flush();
                 }
             }
