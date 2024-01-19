@@ -1,7 +1,6 @@
 package io.mo.gendata;
 
 import io.mo.gendata.constant.CONFIG;
-import io.mo.gendata.constant.DATA;
 import io.mo.gendata.meta.Table;
 import io.mo.gendata.util.TableParser;
 

@@ -50,7 +50,11 @@ public class TableParser {
                         String f_name = (String)field_map.get("name");
                         String f_type = (String)field_map.get("type");
                         String f_builtin = (String)field_map.get("builtin");
-                        if(f_builtin == null && f_type == null) {
+                        String f_enum = (String)field_map.get("enum");
+                        String f_index = (String)field_map.get("index");
+                        String f_ref = (String)field_map.get("ref");
+                        
+                        if(f_builtin == null && f_type == null && f_enum == null) {
                             LOG.error("The column[" + f_name + "] in table[" + table.getName() + "] must one of attributes[type,builtin,ref,enum].please check.");
                             System.exit(1);
                         }
@@ -76,11 +80,26 @@ public class TableParser {
                                 field.setType(f_type);
                             }
                         }
-
-                        if(f_builtin != null )
+                        
+                        if(f_builtin != null ) {
                             field.setBuiltin(f_builtin);
+                        }
+                        
+                        if(f_enum !=null ){
+                            String[] eValues = f_enum.split(",");
+                            field.addEnum(eValues);
+                        }
+                        
+                        if(f_index != null)
+                            field.setIndex(f_index);
+                        
+                        if(f_ref != null)
+                            field.setRef(f_ref);
+                        
                         table.addField(field);
                     }
+
+                    table.makeIndex();
                 }
 
             } catch (FileNotFoundException e) {

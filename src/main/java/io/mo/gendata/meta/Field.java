@@ -3,13 +3,16 @@ package io.mo.gendata.meta;
 import io.mo.gendata.CoreAPI;
 import io.mo.gendata.constant.FIELDATTR;
 import io.mo.gendata.constant.MAPPING;
-import io.mo.gendata.util.TableParser;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Field {
 
@@ -17,6 +20,12 @@ public class Field {
     private String type;
 
     private String builtin;
+
+
+    private String index;
+    private String ref;
+
+    private ArrayList _enum = new ArrayList();
     private List<Object> paras = new ArrayList<Object>();
     private Method method;
 
@@ -44,11 +53,21 @@ public class Field {
         if(builtin == null) return;
         this.builtin = builtin;
         try {
+            String methodName = MAPPING.getMethodName(builtin);
+            if(methodName == null){
+                LOG.error("The builtin["+builtin+"] is invalid,please check.");
+                System.exit(1);
+            }
             this.method = CoreAPI.class.getDeclaredMethod(MAPPING.getMethodName(builtin));
         } catch (NoSuchMethodException e) {
             LOG.error("The builtin["+builtin+"] can not be processed.");
             System.exit(1);
         }
+    }
+    
+    public void addEnum(String[] values){
+        for(int i = 0; i < values.length; i++)
+            _enum.add(values[i]);
     }
 
     public Method getMethod() {
@@ -78,11 +97,52 @@ public class Field {
     public String getType() {
         return type;
     }
+    public String getIndex() {
+        return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
+    }
+
+    public String getRef() {
+        return ref;
+    }
+
+    public void setRef(String ref) {
+        this.ref = ref;
+    }
+    
+    public boolean isIndex(){
+        return index != null;
+    }
+    
+    public boolean isRefIndex(String index){
+        if (this.ref == null)
+            return false;
+        
+        if(this.ref.equals(index))
+            return true;
+        return false;
+    }
+
+    public boolean isRefIndex(){
+        if (this.ref == null)
+            return false;
+        
+        return true;
+    }
+
 
     public void setType(String type) {
         if(type == null) return;
         this.type = type;
         try {
+            String methodName = MAPPING.getMethodName(type);
+            if(methodName == null){
+                LOG.error("The type["+type+"] is invalid,please check.");
+                System.exit(1);
+            }
             if(paras.size() == 0) {
                 this.method = CoreAPI.class.getDeclaredMethod(MAPPING.getMethodName(type));
             }
@@ -111,6 +171,7 @@ public class Field {
     }
 
     public Object nextValue(){
+        
         if(builtin != null){
             switch (builtin){
                 case FIELDATTR.NAME_BUILTIN: return api.getName();
@@ -120,11 +181,42 @@ public class Field {
                 case FIELDATTR.SSN_BUILTIN: return api.getSSN();
                 case FIELDATTR.EMAIL_BUILTIN: return api.getEmail();
                 case FIELDATTR.COUNTRY_BUILTIN: return api.getCountry();
+                case FIELDATTR.CARVIN_BUILTIN: return api.getCarVin();
+                case FIELDATTR.CITY_BUILTIN: return api.getCity();
+                case FIELDATTR.BANKACCOUNT_BUILTIN: return api.getBankCardNum();
+                case FIELDATTR.PROVINCE_BUILTIN: return api.getProvince();
+                case FIELDATTR.PROVINCECODE_BUILTIN: return api.getProvinceCode();
+                case FIELDATTR.ADDRESS_BUILTIN: return api.getAddress();
+                case FIELDATTR.OFFICECARDNUM_BUILTIN: return api.getOfficalCardNum();
+                case FIELDATTR.CARPLATENUM_BUILTIN: return api.getCarPlateNumber();
+                case FIELDATTR.NATIONALITY_BUILTIN: return api.getNationality();
+                case FIELDATTR.COLLAGE_BUILTIN: return api.getCollegeName();
+                case FIELDATTR.QUALIFICATION_BUILTIN: return api.getQualificationName();
+                case FIELDATTR.COUNTRYNAME_BUILTIN: return api.getCountryName();
+                case FIELDATTR.COUNTRYCODE_BUILTIN: return api.getCountryCode();
+                case FIELDATTR.SCHOOL_BUILTIN: return api.getSchoolName();
+                case FIELDATTR.USNAME_BUILTIN: return api.getUSName();
+                case FIELDATTR.SWIFTCODE_BUILTIN: return api.getSwiftCode();
+                case FIELDATTR.DEGREE_BUILTIN: return api.getDegree();
+                case FIELDATTR.LICENSENUM_BUILTIN: return api.getDriveLicenseNum();
+                case FIELDATTR.QQ_BUILTIN: return api.getQQNum();
+                case FIELDATTR.WECHAT_BUILTIN: return api.getWechatNum();
+                case FIELDATTR.HKPHONENUM_BUILTIN: return api.getHKPhoneNum();
+                case FIELDATTR.PASSPORT_BUILTIN: return api.getPassportCode();
+                case FIELDATTR.PASSPORTHK_BUILTIN: return api.getPassportHKCode();
+                case FIELDATTR.PASSPORTMA_BUILTIN: return api.getPassportMACode();
+                case FIELDATTR.PASSPORTHKMA_BUILTIN: return api.getPassportHKMACode();
+                case FIELDATTR.IPADDRV4_BUILTIN: return api.getIPAddrV4();
+                case FIELDATTR.IPADDRV6_BUILTIN: return api.getIPAddrV6();
+                case FIELDATTR.MACADDR_BUILTIN: return api.getMACAddr();
             }
         }
 
         if(type != null){
             switch (type){
+                case FIELDATTR.AUTO_TPYE:
+                    return api.getAutoIncrement();
+                    
                 case FIELDATTR.INT_TYPE : {
                     int x = (Integer) paras.get(0);
                     int y = (Integer) paras.get(1);
@@ -145,8 +237,22 @@ public class Field {
                     int x = (Integer)paras.get(0);
                     return api.nextVarchar(x);
                 }
+                case FIELDATTR.CHAR_TYPE : {
+                    int x = (Integer)paras.get(0);
+                    return api.nextChar(x);
+                }
+
+                case FIELDATTR.UUID_TYPE: {
+                    return api.nextUUID();
+                }
             }
         }
+        
+        if(_enum.size() > 0){
+           int index = RandomUtils.nextInt(0,_enum.size());
+           return _enum.get(index);
+        }
+        
         return null;
     }
 
@@ -167,6 +273,9 @@ public class Field {
         }
         field.setBuiltin(builtin);
         field.setType(type);
+        field.addEnum((String[])_enum.toArray(new String[_enum.size()]));
+        field.setIndex(index);
+        field.setRef(ref);
         return field;
     }
 

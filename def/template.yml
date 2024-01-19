@@ -1,11 +1,22 @@
 tables:
 - name: sample1
-  count: 100000
+  count: 10
   columns:
   - name: id
-    type: int(0,1000)
+    type: auto
+  - name: name
+    builtin: name
+  - name: uuid
+    type: uuid
+  - name: proviceId
+    enum: 11,12,13,14
+    index: proviceId
+  - name: proviceName
+    enum: 安徽,江苏,上海,杭州,黑龙江,吉林,北京,新疆,上冻,fdasf,fdasfd
+    ref: proviceId
   - name: idcardnum
     builtin: idcardnum
+    ref: proviceId
   - name: phonenumber
     builtin: phonenumber
   - name: cellphone
@@ -18,8 +29,10 @@ tables:
     type: date
   - name: lastupdate
     type: datetime
+  - name: lex
+    type: char(10)
   - name: remark
-    type: varchar(10)
+    type: varchar(50)
 
 #- name: sample2
 #  count: 10

@@ -3,15 +3,16 @@ package io.mo.gendata;
 import cn.binarywang.tools.generator.ChineseIDCardNumberGenerator;
 import cn.binarywang.tools.generator.base.GenericGenerator;
 import com.github.javafaker.Faker;
+import io.mo.gendata.builtin.CarUtils;
+import io.mo.gendata.builtin.DataFaker;
+import io.mo.gendata.constant.DATA;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-
-import io.mo.gendata.constant.DATA;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
-import org.apache.log4j.Logger;
+import java.util.UUID;
 
 public class CoreAPI {
     private static Logger LOG = Logger.getLogger(CoreAPI.class.getName());
@@ -22,7 +23,12 @@ public class CoreAPI {
 
     private  DateFormat d_format = new SimpleDateFormat("yyyy-MM-dd");
     private  DateFormat dt_format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-
+    
+    // autoincrement
+    public String getAutoIncrement(){
+        return "\\N";
+    }
+    
     // fake random int(x,y)
     public int nextInt(int x,int y){
         int num = faker.random().nextInt(x,y);
@@ -57,24 +63,35 @@ public class CoreAPI {
     }
 
     //fake random varchar
-    public String nextVarchar(int length){
+    public String nextChar(int length){
         return RandomStringUtils.randomAlphabetic(length);
+    }
+    
+    //fake random varchar
+    public String nextVarchar(int length){
+        int len = faker.random().nextInt(1,length);
+        return RandomStringUtils.randomAlphabetic(len);
+    }
+    
+    //get UUID
+    public String nextUUID(){
+        return UUID.randomUUID().toString();
     }
 
     //builtin filed: name
     public String getName(){
-        return faker.name().name();
+        return cn_faker.name().name();
     }
 
 
     //builtin filed: phonenumber
     public String getPhonenumber(){
-        return faker.phoneNumber().phoneNumber();
+        return cn_faker.phoneNumber().phoneNumber();
     }
 
     //builtin filed: cellphone
     public String getCellphone(){
-        return faker.phoneNumber().cellPhone();
+        return cn_faker.phoneNumber().cellPhone();
     }
 
     //builtin filed: idcardnum
@@ -97,11 +114,129 @@ public class CoreAPI {
         return cn_faker.country().name();
     }
 
+    public  String getCarVin(){
+        return CarUtils.getRandomCarVin();
+    }
+
+    public String getCity(){
+        return cn_faker.address().city();
+    }
+
+    public String getBankCardNum(){
+        return DataFaker.getRandomBankCardNum();
+    }
+    
+    public String getProvince(){
+        return DataFaker.getRandomProvince();
+    }
+
+    public String getProvinceCode(){
+        return DataFaker.getRandomProvinceCode();
+    }
+    
+    public String getCreditCardNum(){
+        return DataFaker.getRandomCreditCardNum();
+    }
+
+    public String getOfficalCardNum(){
+        return DataFaker.getRandomOfficalCardNum();
+    }
+
+    public String getCarPlateNumber(){
+        return DataFaker.getRandomCarPlateNumber();
+    }
+
+    public String getNationality(){
+        return DataFaker.getRandomCNationality();
+    }
+
+    public String getCollegeName(){
+        return DataFaker.getRandomCollegeName();
+    }
+
+    public String getQualificationName(){
+        return DataFaker.getRandomQualificationName();
+    }
+
+    public String getCountryName(){
+        return DataFaker.getRandomCountryName();
+    }
+
+    public String getSchoolName(){
+        return DataFaker.getRandomSchoolName();
+    }
+
+    public String getUSName(){
+        return DataFaker.getRandomUSName();
+    }
+
+    public String getCountryCode(){
+        return DataFaker.getRandomCountryCode();
+    }
+
+    public String getSwiftCode(){
+        return DataFaker.getRandomSwiftCode();
+    }
+
+    public String getDegree(){
+        return DataFaker.getRandomDegree();
+    }
+
+    public String getDriveLicenseNum(){
+        return DataFaker.getRandomDriveLicenseNum();
+    }
+
+    public String getQQNum(){
+        return DataFaker.getRandomQQNum();
+    }
+
+    public String getWechatNum(){
+        return DataFaker.getRandomWechatNum();
+    }
+
+    public String getHKPhoneNum(){
+        return DataFaker.getRandomHKPhoneNum();
+    }
+
+    public String getUSPhoneNum(){
+        return DataFaker.getRandomUSPhoneNum();
+    }
 
 
 
+    public String getIPAddrV4(){
+        return DataFaker.getRandomIPAddrV4();
+    }
 
+    public String getIPAddrV6(){
+        return DataFaker.getRandomIPAddrV6();
+    }
 
+    public String getMACAddr(){
+        return DataFaker.getRandomMACAddr();
+    }
+
+    public String getPassportCode(){
+        return DataFaker.getRandomPassport();
+    }
+
+    public String getPassportHKCode(){
+        return DataFaker.getRandomPassportHK();
+    }
+
+    public String getPassportMACode(){
+        return DataFaker.getRandomPassportMA();
+    }
+
+    public String getPassportHKMACode(){
+        return DataFaker.getRandomPassportHK();
+    }
+
+    public String getAddress(){
+      return cn_faker.address().fullAddress();
+    }
+    
+    
     public static void main(String args[]){
         Faker us_faker = new Faker(Locale.US);
         CoreAPI faker = new CoreAPI();

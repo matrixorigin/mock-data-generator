@@ -27,7 +27,6 @@ public class DataFaker {
     public static GenericGenerator CMobileNumG = ChineseMobileNumberGenerator.getInstance();
     //地区生成类
     public static GenericGenerator CAreaG = ChineseAddressGenerator.getInstance();
-
     //随机生成身份证号码
     public static String getRandomIdCardNum(){
         //return IDCARDGENERATOR.generate();
@@ -63,6 +62,10 @@ public class DataFaker {
     //随机生成省份
     public static String getRandomProvince(){
         return Commontils.getRandomProvince();
+    }
+
+    public static String getRandomProvinceCode(){
+        return Commontils.getRandomProvinceCode();
     }
 
     //随机生成国籍

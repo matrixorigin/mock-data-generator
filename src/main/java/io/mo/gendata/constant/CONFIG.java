@@ -6,11 +6,11 @@ public class CONFIG {
     public static String OUTPUT = "data/";
 
     //default batch count per-writting
-    public static int BATCH_COUNT = 500000;
+    public static int BATCH_COUNT = 1000000;
 
     //public static int PER_BATCH_COUNT = 1000;
 
-    public static int MAX_QUEUE_SIZE = 1000000;
+    public static int MAX_QUEUE_SIZE = 5000000;
 
     public static int THRESHOLD_MUTIL_THREAD = 10000;
     public static int THREAD_COUNT = Runtime.getRuntime().availableProcessors();

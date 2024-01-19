@@ -71,6 +71,11 @@ public class Commontils {
         int index = (int)(Math.random()*province.length);
         return province[index];
     }
+    
+    public static String getRandomProvinceCode(){
+        int index = (int)(Math.random()*province_code.length);
+        return province_code[index];
+    }
 
     public static String getRandomNationality(){
         int index = (int)(Math.random()*nationality.length);

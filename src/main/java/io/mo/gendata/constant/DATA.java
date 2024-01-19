@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DATA {
     //int tpye
@@ -31,4 +32,7 @@ public class DATA {
             throw new RuntimeException(e);
         }
     }
+    
+    //public static lock object
+    public String LOCK = "lock";
 }
