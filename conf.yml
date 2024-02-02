@@ -11,3 +11,9 @@ escape_separator: "\\"
 #enclose separator
 enclose_separator: "\""
 
+#batch to write and flush
+batch_size: 1000000
+
+#data file count
+file_count: 10
+
