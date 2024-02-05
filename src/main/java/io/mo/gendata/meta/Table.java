@@ -371,7 +371,7 @@ public class Table implements Runnable{
                 while (true) {
                     //writer.write((String) queue.take());
                     for (int i = 0; i < queues.length; i++) {
-                        record = (String) queues[i].peek();
+                        record = (String) queues[i].poll();
                         if (record == null)
                             continue;
 
