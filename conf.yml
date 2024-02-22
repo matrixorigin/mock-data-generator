@@ -15,5 +15,5 @@ enclose_separator: "\""
 batch_size: 1000000
 
 #data file count
-file_count: 10
+file_count: 1
 

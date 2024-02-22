@@ -21,4 +21,6 @@ public class CONFIG {
     public static int FILE_COUNT = 10;
     public static String ESCAPE_SEPARATOR = "\\";
     public static String ENCLOSE_SEPARATOR = "\"";
+    
+    public static String NULL_VALUE = "\\N";
 }

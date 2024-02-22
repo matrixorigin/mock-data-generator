@@ -5,6 +5,7 @@ import cn.binarywang.tools.generator.base.GenericGenerator;
 import com.github.javafaker.Faker;
 import io.mo.gendata.builtin.CarUtils;
 import io.mo.gendata.builtin.DataFaker;
+import io.mo.gendata.constant.CONFIG;
 import io.mo.gendata.constant.DATA;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
@@ -26,7 +27,7 @@ public class CoreAPI {
     
     // autoincrement
     public String getAutoIncrement(){
-        return "\\N";
+        return CONFIG.NULL_VALUE;
     }
     
     // fake random int(x,y)

@@ -53,6 +53,8 @@ public class TableParser {
                         String f_enum = (String)field_map.get("enum");
                         String f_index = (String)field_map.get("index");
                         String f_ref = (String)field_map.get("ref");
+                        String f_prefix = (String)field_map.get("prefix");
+                        int f_null_ratio = field_map.get("null_ratio") == null?100:(int)field_map.get("null_ratio");
                         
                         if(f_builtin == null && f_type == null && f_enum == null) {
                             LOG.error("The column[" + f_name + "] in table[" + table.getName() + "] must one of attributes[type,builtin,ref,enum].please check.");
@@ -89,12 +91,21 @@ public class TableParser {
                             String[] eValues = f_enum.split(",");
                             field.addEnum(eValues);
                         }
+
+                        if(f_prefix !=null ){
+                            String[] pValues = f_prefix.split(",");
+                            field.addPrefix(pValues);
+                        }
                         
                         if(f_index != null)
                             field.setIndex(f_index);
                         
                         if(f_ref != null)
                             field.setRef(f_ref);
+                        
+                        if(f_null_ratio < 100){
+                            field.setNull_ratio(f_null_ratio);
+                        }
                         
                         table.addField(field);
                     }

@@ -16,6 +16,8 @@ Mock-Data-Generator is a java-based tool to generate data for mostly table data 
         type: auto        #The column type, the tool support some typies that will be described in following phase
       - name: name      
         builtin: name     #The builtin type, the tool provides lots of builtin type that will be described in following phase
+        prefix: ES001,DA002 #Prefixes
+        null_ratio: 10    #the percentage of null value
       - name: proviceId
         enum: 11,12,13,14 #The enum type, values is separated by [,].
         index: proviceId  #The index tag,means each mutiple tuple[a,b,c] in which b and c is bound to a is immutable.

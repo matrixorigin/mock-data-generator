@@ -1,6 +1,7 @@
 package io.mo.gendata.meta;
 
 import io.mo.gendata.CoreAPI;
+import io.mo.gendata.constant.CONFIG;
 import io.mo.gendata.constant.FIELDATTR;
 import io.mo.gendata.constant.MAPPING;
 import org.apache.commons.lang3.RandomUtils;
@@ -18,17 +19,20 @@ public class Field {
 
     private String name;
     private String type;
+    
 
     private String builtin;
 
 
     private String index;
     private String ref;
+    private int null_ratio = 100;
 
-    private ArrayList _enum = new ArrayList();
+    private ArrayList<String> _enum = new ArrayList();
+    private ArrayList<String> prefix = new ArrayList();
     private List<Object> paras = new ArrayList<Object>();
     private Method method;
-
+    
 
     private static Logger LOG = Logger.getLogger(Field.class.getName());
     private CoreAPI api =  new CoreAPI();
@@ -36,6 +40,17 @@ public class Field {
     public Field(){
 
     }
+
+
+
+    public int getNull_ratio() {
+        return null_ratio;
+    }
+
+    public void setNull_ratio(int null_ratio) {
+        this.null_ratio = null_ratio;
+    }
+
 
     public Field(String type){
         this.type = type;
@@ -68,6 +83,15 @@ public class Field {
     public void addEnum(String[] values){
         for(int i = 0; i < values.length; i++)
             _enum.add(values[i]);
+    }
+    
+    public void addPrefix(String[] values){
+        for(int i = 0; i < values.length; i++)
+            prefix.add(values[i]);
+    }
+
+    public ArrayList<String> getPrefixList(){
+        return prefix;
     }
 
     public Method getMethod() {
@@ -172,88 +196,179 @@ public class Field {
 
     public Object nextValue(){
         
+        if(null_ratio < 100){
+            int randomV = RandomUtils.nextInt(1,100);
+            if(randomV < null_ratio)
+                return CONFIG.NULL_VALUE;
+        }
+        String value = null;
+        
         if(builtin != null){
             switch (builtin){
-                case FIELDATTR.NAME_BUILTIN: return api.getName();
-                case FIELDATTR.PHONENUMBER_BUILTIN: return api.getPhonenumber();
-                case FIELDATTR.CELLPHONE_BUILTIN: return api.getCellphone();
-                case FIELDATTR.IDCARD_BUILTIN: return api.getIdCardNum();
-                case FIELDATTR.SSN_BUILTIN: return api.getSSN();
-                case FIELDATTR.EMAIL_BUILTIN: return api.getEmail();
-                case FIELDATTR.COUNTRY_BUILTIN: return api.getCountry();
-                case FIELDATTR.CARVIN_BUILTIN: return api.getCarVin();
-                case FIELDATTR.CITY_BUILTIN: return api.getCity();
-                case FIELDATTR.BANKACCOUNT_BUILTIN: return api.getBankCardNum();
-                case FIELDATTR.PROVINCE_BUILTIN: return api.getProvince();
-                case FIELDATTR.PROVINCECODE_BUILTIN: return api.getProvinceCode();
-                case FIELDATTR.ADDRESS_BUILTIN: return api.getAddress();
-                case FIELDATTR.OFFICECARDNUM_BUILTIN: return api.getOfficalCardNum();
-                case FIELDATTR.CARPLATENUM_BUILTIN: return api.getCarPlateNumber();
-                case FIELDATTR.NATIONALITY_BUILTIN: return api.getNationality();
-                case FIELDATTR.COLLAGE_BUILTIN: return api.getCollegeName();
-                case FIELDATTR.QUALIFICATION_BUILTIN: return api.getQualificationName();
-                case FIELDATTR.COUNTRYNAME_BUILTIN: return api.getCountryName();
-                case FIELDATTR.COUNTRYCODE_BUILTIN: return api.getCountryCode();
-                case FIELDATTR.SCHOOL_BUILTIN: return api.getSchoolName();
-                case FIELDATTR.USNAME_BUILTIN: return api.getUSName();
-                case FIELDATTR.SWIFTCODE_BUILTIN: return api.getSwiftCode();
-                case FIELDATTR.DEGREE_BUILTIN: return api.getDegree();
-                case FIELDATTR.LICENSENUM_BUILTIN: return api.getDriveLicenseNum();
-                case FIELDATTR.QQ_BUILTIN: return api.getQQNum();
-                case FIELDATTR.WECHAT_BUILTIN: return api.getWechatNum();
-                case FIELDATTR.HKPHONENUM_BUILTIN: return api.getHKPhoneNum();
-                case FIELDATTR.PASSPORT_BUILTIN: return api.getPassportCode();
-                case FIELDATTR.PASSPORTHK_BUILTIN: return api.getPassportHKCode();
-                case FIELDATTR.PASSPORTMA_BUILTIN: return api.getPassportMACode();
-                case FIELDATTR.PASSPORTHKMA_BUILTIN: return api.getPassportHKMACode();
-                case FIELDATTR.IPADDRV4_BUILTIN: return api.getIPAddrV4();
-                case FIELDATTR.IPADDRV6_BUILTIN: return api.getIPAddrV6();
-                case FIELDATTR.MACADDR_BUILTIN: return api.getMACAddr();
+                case FIELDATTR.NAME_BUILTIN:
+                    value = api.getName();
+                    break;
+                case FIELDATTR.PHONENUMBER_BUILTIN:
+                    value = api.getPhonenumber();
+                    break;
+                case FIELDATTR.CELLPHONE_BUILTIN: 
+                    value = api.getCellphone();
+                    break;
+                case FIELDATTR.IDCARD_BUILTIN: 
+                    value = api.getIdCardNum();
+                    break;
+                case FIELDATTR.SSN_BUILTIN: 
+                    value = api.getSSN();
+                    break;
+                case FIELDATTR.EMAIL_BUILTIN: 
+                    value = api.getEmail();
+                    break;
+                case FIELDATTR.COUNTRY_BUILTIN: 
+                    value = api.getCountry();
+                    break;
+                case FIELDATTR.CARVIN_BUILTIN: 
+                    value = api.getCarVin();
+                    break;
+                case FIELDATTR.CITY_BUILTIN: 
+                    value = api.getCity();
+                    break;
+                case FIELDATTR.BANKACCOUNT_BUILTIN: 
+                    value = api.getBankCardNum();
+                    break;
+                case FIELDATTR.PROVINCE_BUILTIN: 
+                    value = api.getProvince();
+                    break;
+                case FIELDATTR.PROVINCECODE_BUILTIN: 
+                    value = api.getProvinceCode();
+                    break;
+                case FIELDATTR.ADDRESS_BUILTIN: 
+                    value = api.getAddress();
+                    break;
+                case FIELDATTR.OFFICECARDNUM_BUILTIN: 
+                    value = api.getOfficalCardNum();
+                    break;
+                case FIELDATTR.CARPLATENUM_BUILTIN: 
+                    value = api.getCarPlateNumber();
+                    break;
+                case FIELDATTR.NATIONALITY_BUILTIN: 
+                    value = api.getNationality();
+                    break;
+                case FIELDATTR.COLLAGE_BUILTIN: 
+                    value = api.getCollegeName();
+                    break;
+                case FIELDATTR.QUALIFICATION_BUILTIN: 
+                    value = api.getQualificationName();
+                    break;
+                case FIELDATTR.COUNTRYNAME_BUILTIN: 
+                    value = api.getCountryName();
+                    break;
+                case FIELDATTR.COUNTRYCODE_BUILTIN: 
+                    value = api.getCountryCode();
+                    break;
+                case FIELDATTR.SCHOOL_BUILTIN: 
+                    value = api.getSchoolName();
+                    break;
+                case FIELDATTR.USNAME_BUILTIN: 
+                    value = api.getUSName();
+                    break;
+                case FIELDATTR.SWIFTCODE_BUILTIN: 
+                    value = api.getSwiftCode();
+                    break;
+                case FIELDATTR.DEGREE_BUILTIN: 
+                    value = api.getDegree();
+                    break;
+                case FIELDATTR.LICENSENUM_BUILTIN: 
+                    value = api.getDriveLicenseNum();
+                    break;
+                case FIELDATTR.QQ_BUILTIN: 
+                    value = api.getQQNum();
+                    break;
+                case FIELDATTR.WECHAT_BUILTIN: 
+                    value = api.getWechatNum();
+                    break;
+                case FIELDATTR.HKPHONENUM_BUILTIN: 
+                    value = api.getHKPhoneNum();
+                    break;
+                case FIELDATTR.PASSPORT_BUILTIN: 
+                    value = api.getPassportCode();
+                    break;
+                case FIELDATTR.PASSPORTHK_BUILTIN: 
+                    value = api.getPassportHKCode();
+                    break;
+                case FIELDATTR.PASSPORTMA_BUILTIN: 
+                    value = api.getPassportMACode();
+                    break;
+                case FIELDATTR.PASSPORTHKMA_BUILTIN: 
+                    value = api.getPassportHKMACode();
+                    break;
+                case FIELDATTR.IPADDRV4_BUILTIN: 
+                    value = api.getIPAddrV4();
+                    break;
+                case FIELDATTR.IPADDRV6_BUILTIN: 
+                    value = api.getIPAddrV6();
+                    break;
+                case FIELDATTR.MACADDR_BUILTIN: 
+                    value = api.getMACAddr();
+                    break;
             }
         }
 
         if(type != null){
             switch (type){
                 case FIELDATTR.AUTO_TPYE:
-                    return api.getAutoIncrement();
+                    value = api.getAutoIncrement();
+                    break;
                     
                 case FIELDATTR.INT_TYPE : {
                     int x = (Integer) paras.get(0);
                     int y = (Integer) paras.get(1);
-                    return api.nextInt(x, y);
+                    value = String.valueOf(api.nextInt(x, y));
+                    break;
                 }
                 case FIELDATTR.DECIMAL_TYPE : {
                     int x = (Integer) paras.get(0);
                     int y = (Integer) paras.get(1);
-                    return api.nextDecimal(x, y);
+                    value = api.nextDecimal(x, y);
+                    break;
                 }
                 case FIELDATTR.DATE_TYPE : {
-                    return api.nextDate();
+                    value = api.nextDate();
+                    break;
                 }
                 case FIELDATTR.DATETIME_TYPE : {
-                    return api.nextDateTime();
+                    value = api.nextDateTime();
+                    break;
                 }
                 case FIELDATTR.VARCHAR_TYPE : {
                     int x = (Integer)paras.get(0);
-                    return api.nextVarchar(x);
+                    value = api.nextVarchar(x);
+                    break;
                 }
                 case FIELDATTR.CHAR_TYPE : {
                     int x = (Integer)paras.get(0);
-                    return api.nextChar(x);
+                    value = api.nextChar(x);
+                    break;
                 }
 
                 case FIELDATTR.UUID_TYPE: {
-                    return api.nextUUID();
+                    value = api.nextUUID();
+                    break;
                 }
             }
         }
         
         if(_enum.size() > 0){
            int index = RandomUtils.nextInt(0,_enum.size());
-           return _enum.get(index);
+           value = _enum.get(index);
+        }
+
+
+        if(prefix.size() > 0){
+            int randomV = RandomUtils.nextInt(0,prefix.size());
+            value = prefix.get(randomV)+ value;
         }
         
-        return null;
+        return value;
     }
 
 
@@ -276,6 +391,9 @@ public class Field {
         field.addEnum((String[])_enum.toArray(new String[_enum.size()]));
         field.setIndex(index);
         field.setRef(ref);
+        field.setNull_ratio(null_ratio);
+        field.addPrefix((String[])prefix.toArray(new String[prefix.size()]));
+        //System.out.println(field.getPrefixList().size());
         return field;
     }
 
