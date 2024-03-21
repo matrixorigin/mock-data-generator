@@ -12,8 +12,16 @@ escape_separator: "\\"
 enclose_separator: "\""
 
 #batch to write and flush
-batch_size: 1000000
+batch_size: 10000
 
 #data file count
-file_count: 1
+file_count: 10
+
+#storage: local,cos
+storage: "local"
+  
+secret_id: ""
+secret_key: ""
+bucket: ""
+region: ""
 

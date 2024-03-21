@@ -8,6 +8,7 @@ import io.mo.gendata.builtin.DataFaker;
 import io.mo.gendata.constant.CONFIG;
 import io.mo.gendata.constant.DATA;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
@@ -32,7 +33,7 @@ public class CoreAPI {
     
     // fake random int(x,y)
     public int nextInt(int x,int y){
-        int num = faker.random().nextInt(x,y);
+        int num = RandomUtils.nextInt(x,y);
         return num;
     }
 

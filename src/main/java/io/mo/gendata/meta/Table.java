@@ -1,18 +1,21 @@
 package io.mo.gendata.meta;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import com.qcloud.cos.COSClient;
+import com.qcloud.cos.model.*;
 import io.mo.gendata.CoreAPI;
 import io.mo.gendata.constant.CONFIG;
 import io.mo.gendata.constant.DATA;
+import io.mo.gendata.cos.COSUtils;
+import io.mo.gendata.util.ConfUtil;
 import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -362,45 +365,145 @@ public class Table implements Runnable{
             if (!output.exists())
                 output.mkdirs();
             StringBuffer buffer = new StringBuffer();
+            int partNumber = 1;
+            
             //LOG.info("Now start to write the data records for the table[" + name + "],please waiting...................");
             try {
-                FileWriter writer = new FileWriter(CONFIG.OUTPUT + "/" + name + "_" + id + ".tbl");
-                int w_count = 1;
-                String record = null;
-                long start = System.currentTimeMillis();
-                while (true) {
-                    //writer.write((String) queue.take());
-                    for (int i = 0; i < queues.length; i++) {
-                        record = (String) queues[i].poll();
-                        if (record == null)
-                            continue;
+                if(ConfUtil.getStorage().equalsIgnoreCase("local")) {
+                    FileWriter writer = new FileWriter(CONFIG.OUTPUT + "/" + name + "_" + id + ".tbl");
+                    int w_count = 1;
+                    String record = null;
+                    long start = System.currentTimeMillis();
+                    while (true) {
+                        //writer.write((String) queue.take());
+                        for (int i = 0; i < queues.length; i++) {
+                            record = (String) queues[i].poll();
+                            if (record == null)
+                                continue;
 
-                        buffer.append(record);
-                        w_count++;
-                        if (w_count >= CONFIG.BATCH_COUNT && w_count % CONFIG.BATCH_COUNT == 0) {
-                            writer.write(buffer.toString());
-                            pos.addAndGet(CONFIG.BATCH_COUNT);
-                            buffer.delete(0, buffer.length());
-                            //LOG.info(w_count + " records for table[" + name + "] has been generated ," + (int) (((double) w_count / count) * 100) + "% completed.");
-                            //writer.flush();
+                            buffer.append(record);
+                            w_count++;
+                            if (w_count >= CONFIG.BATCH_COUNT && w_count % CONFIG.BATCH_COUNT == 0) {
+                                writer.write(buffer.toString());
+                                pos.addAndGet(CONFIG.BATCH_COUNT);
+                                buffer.delete(0, buffer.length());
+                                //LOG.info(w_count + " records for table[" + name + "] has been generated ," + (int) (((double) w_count / count) * 100) + "% completed.");
+                                //writer.flush();
+                            }
+
+                            if (w_count > batch)
+                                break;
                         }
 
                         if (w_count > batch)
                             break;
+
                     }
-
-                    if (w_count > batch)
-                        break;
-
+                    writer.write(buffer.toString());
+                    pos.addAndGet(batch % CONFIG.BATCH_COUNT);
+                    buffer.delete(0, buffer.length());
+                    writer.flush();
+                    writer.close();
                 }
-                writer.write(buffer.toString());
-                pos.addAndGet(batch%CONFIG.BATCH_COUNT);
-                buffer.delete(0, buffer.length());
-                writer.flush();
-                writer.close();
+
+                if(ConfUtil.getStorage().equalsIgnoreCase("cos")) {
+                    int w_count = 1;
+                    String record = null;
+                    long start = System.currentTimeMillis();
+                    COSClient cosClient = COSUtils.getCOSClient();
+                    String bucketName = ConfUtil.getBucket();
+                    String key =CONFIG.OUTPUT + "/" + name + "_" + id + ".tbl";
+                    InitiateMultipartUploadRequest initiateMultipartUploadRequest = new InitiateMultipartUploadRequest(bucketName, key);
+                    InitiateMultipartUploadResult initiateMultipartUploadResult = cosClient.initiateMultipartUpload(initiateMultipartUploadRequest);
+                    String uploadId = initiateMultipartUploadResult.getUploadId();
+                    List<PartETag> partETags = new ArrayList<>();
+                    while (true) {
+                        //writer.write((String) queue.take());
+                        for (int i = 0; i < queues.length; i++) {
+                            record = (String) queues[i].poll();
+                            if (record == null)
+                                continue;
+                            
+                            buffer.append(record);
+                            w_count++;
+
+
+                            if (w_count < batch && batch - w_count < CONFIG.BATCH_COUNT)
+                                continue;
+
+                            if (w_count == batch) {
+                                byte[] bytes = buffer.toString().getBytes(StandardCharsets.UTF_8);
+                                if (bytes.length > CONFIG.MIN_UPLOAD_SIZE) {
+                                    PartETag partETag = uploadPart(cosClient, bucketName, key, uploadId, partNumber, bytes);
+                                    partETags.add(partETag);
+                                    buffer.delete(0, records.length());
+                                    pos.addAndGet(CONFIG.BATCH_COUNT);
+                                } else {
+                                    LOG.error(String.format("The upoading size is less than min uploading size[%d]", CONFIG.MIN_UPLOAD_SIZE));
+                                    cosClient.shutdown();
+                                    System.exit(1);
+                                }
+                            }
+                            
+                            if (w_count >= CONFIG.BATCH_COUNT && w_count % CONFIG.BATCH_COUNT == 0) {
+                                byte[] bytes = buffer.toString().getBytes(StandardCharsets.UTF_8);
+                                if (bytes.length > CONFIG.MIN_UPLOAD_SIZE) {
+                                    LOG.info(String.format("Loading file: name[%s],partNumber[%d]",key,partNumber));
+                                    PartETag partETag = uploadPart(cosClient, bucketName, key, uploadId, partNumber, bytes);
+                                    partETags.add(partETag);
+                                    partNumber++;
+                                    pos.addAndGet(CONFIG.BATCH_COUNT);
+                                    buffer.delete(0, buffer.length());
+                                } else {
+                                    LOG.error(String.format("The upoading size is less than min uploading size[%d]", CONFIG.MIN_UPLOAD_SIZE));
+                                    cosClient.shutdown();
+                                    System.exit(1);
+                                }
+                                //LOG.info(w_count + " records for table[" + name + "] has been generated ," + (int) (((double) w_count / count) * 100) + "% completed.");
+                                //writer.flush();
+                            }
+
+                            if (w_count > batch)
+                                break;
+                        }
+
+                        if (w_count > batch)
+                            break;
+
+                    }
+                    
+                    Collections.sort(partETags, new Comparator<PartETag>() {
+                        @Override
+                        public int compare(PartETag o1, PartETag o2) {
+                            return o1.getPartNumber() - o2.getPartNumber();
+                        }
+                    });
+
+
+                    CompleteMultipartUploadRequest completeMultipartUploadRequest = new CompleteMultipartUploadRequest(bucketName, key, uploadId, partETags);
+                    cosClient.completeMultipartUpload(completeMultipartUploadRequest);
+                    buffer.delete(0,buffer.length());
+                }
+                
+                
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        public PartETag uploadPart(COSClient client,String bucketName,String key,String uploadId,int partNumber,byte[] bytes){
+
+            InputStream inputStream = new ByteArrayInputStream(bytes);
+
+            UploadPartRequest uploadPartRequest = new UploadPartRequest();
+            uploadPartRequest.setBucketName(bucketName);
+            uploadPartRequest.setKey(key);
+            uploadPartRequest.setUploadId(uploadId);
+            uploadPartRequest.setPartNumber(partNumber);
+            uploadPartRequest.setPartSize(bytes.length);
+            uploadPartRequest.setInputStream(inputStream);
+            UploadPartResult uploadPartResult = client.uploadPart(uploadPartRequest);
+            return uploadPartResult.getPartETag();
         }
     }
     

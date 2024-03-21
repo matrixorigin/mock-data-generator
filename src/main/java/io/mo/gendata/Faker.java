@@ -3,7 +3,9 @@ package io.mo.gendata;
 import io.mo.gendata.constant.CONFIG;
 import io.mo.gendata.meta.Table;
 import io.mo.gendata.util.ConfUtil;
+import io.mo.gendata.util.DDLParser;
 import io.mo.gendata.util.TableParser;
+import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -13,14 +15,44 @@ import java.util.concurrent.Executors;
 public class Faker {
     private static Logger LOG = Logger.getLogger(Table.class.getName());
     public static void main(String[] args){
+        
+        boolean parseDDL = false;
+        Options options = new Options();
+        options.addOption(null,"config",true,"the config file that table is defined");
+        options.addOption(null,"output",true,"the output dir that table data is generated");
+        options.addOption(null,"parse",true,"to parse the speified ddl file");
+        
+        CommandLineParser parser = new DefaultParser();
+        try {
 
-        //args[0] refer to the input file
-        if(args.length > 0 && args[0] != null)
-            CONFIG.INPUT = args[0];
+            CommandLine cmd = parser.parse(options, args);
+            if(cmd.hasOption("config")) {
+                CONFIG.INPUT = String.valueOf(cmd.getOptionValue("config"));
+                LOG.info("The config file or dir is " + cmd.getOptionValue("tables"));
+            }
 
-        //args[1] refer to the output path data stored
-        if(args.length > 1 && args[1] != null)
-            CONFIG.OUTPUT = args[1];
+            if(cmd.hasOption("parse")) {
+                CONFIG.INPUT = String.valueOf(cmd.getOptionValue("parse"));
+                LOG.info("The ddl file or dir that nedd to be parsed is  " + cmd.getOptionValue("tables"));
+                parseDDL = true;
+            }
+
+            if(cmd.hasOption("output")) {
+                CONFIG.OUTPUT = String.valueOf(cmd.getOptionValue("output"));
+                LOG.info("The output dir is  " + cmd.getOptionValue("output"));
+            }
+            
+            
+        } catch (ParseException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        
+        //if parse ddl operation
+        if(parseDDL){
+            DDLParser.parse(CONFIG.INPUT);
+            return;
+        }
 
         TableParser.parse(CONFIG.INPUT);
 

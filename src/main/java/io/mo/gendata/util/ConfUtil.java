@@ -56,4 +56,39 @@ public class ConfUtil {
             return 0;
         return (int) conf.get("file_count");
     }
+
+    public static String getStorage(){
+        if(conf == null) init();
+        if(conf.get("storage") == null)
+            return "local";
+        return (String) conf.get("storage");
+    }
+
+    public static String getSecretId(){
+        if(conf == null) init();
+        if(conf.get("secret_id") == null)
+            return null;
+        return (String) conf.get("secret_id");
+    }
+
+    public static String getSecretKey(){
+        if(conf == null) init();
+        if(conf.get("secret_key") == null)
+            return null;
+        return (String) conf.get("secret_key");
+    }
+
+    public static String getBucket(){
+        if(conf == null) init();
+        if(conf.get("bucket") == null)
+            return null;
+        return (String) conf.get("bucket");
+    }
+
+    public static String getRegion(){
+        if(conf == null) init();
+        if(conf.get("region") == null)
+            return null;
+        return (String) conf.get("region");
+    }
 }

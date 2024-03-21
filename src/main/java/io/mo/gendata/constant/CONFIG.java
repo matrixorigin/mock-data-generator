@@ -23,4 +23,6 @@ public class CONFIG {
     public static String ENCLOSE_SEPARATOR = "\"";
     
     public static String NULL_VALUE = "\\N";
+    
+    public static int MIN_UPLOAD_SIZE = 1024*1024;
 }

@@ -161,25 +161,25 @@ public class Field {
     public void setType(String type) {
         if(type == null) return;
         this.type = type;
-        try {
-            String methodName = MAPPING.getMethodName(type);
-            if(methodName == null){
-                LOG.error("The type["+type+"] is invalid,please check.");
-                System.exit(1);
-            }
-            if(paras.size() == 0) {
-                this.method = CoreAPI.class.getDeclaredMethod(MAPPING.getMethodName(type));
-            }
-            else{
-                Class[] p_types = new Class[paras.size()];
-                for(int i = 0; i < p_types.length;i++)
-                    p_types[i] = int.class;
-                this.method = CoreAPI.class.getDeclaredMethod(MAPPING.getMethodName(type),p_types);
-            }
-        } catch (NoSuchMethodException e) {
-            LOG.error("The type["+type+"] can not be processed.");
-            System.exit(1);
-        }
+//        try {
+//            String methodName = MAPPING.getMethodName(type);
+//            if(methodName == null){
+//                LOG.error("The type["+type+"] is invalid,please check.");
+//                System.exit(1);
+//            }
+//            if(paras.size() == 0) {
+//                this.method = CoreAPI.class.getDeclaredMethod(MAPPING.getMethodName(type));
+//            }
+//            else{
+//                Class[] p_types = new Class[paras.size()];
+//                for(int i = 0; i < p_types.length;i++)
+//                    p_types[i] = int.class;
+//                this.method = CoreAPI.class.getDeclaredMethod(MAPPING.getMethodName(type),p_types);
+//            }
+//        } catch (NoSuchMethodException e) {
+//            LOG.error("The type["+type+"] can not be processed.");
+//            System.exit(1);
+//        }
     }
 
     public Object nextValue(Object o){
