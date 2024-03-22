@@ -1,6 +1,6 @@
 
 #field separator
-field_separator: ","
+field_separator: "|"
 
 #line separator
 line_separator: "\n"
@@ -15,7 +15,7 @@ enclose_separator: "\""
 batch_size: 10000
 
 #data file count
-file_count: 10
+file_count: 1
 
 #storage: local,cos
 storage: "local"
