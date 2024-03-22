@@ -98,7 +98,7 @@ public class Commontils {
     }
 
     public static String getRandomHKphoneNum(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         Random r = new Random();
         int first_num = r.nextInt(hkphone_prefix.length);
@@ -112,7 +112,7 @@ public class Commontils {
     }
 
     public static String getRandomQQNum(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String first = "123456789";
         String other = "0123456789";
         int count = (int)(Math.random()*15);
@@ -130,7 +130,7 @@ public class Commontils {
     }
 
     public static String getRandomWechatNum(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int count = (int)(Math.random()*20);
         if (count < 5) count += 5;
 
@@ -146,7 +146,7 @@ public class Commontils {
     }
 
     public static String getRandomDriveLicenseNum(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         Random r = new Random();
         int first_num = r.nextInt(province_code.length);
@@ -162,7 +162,7 @@ public class Commontils {
 
 
     public static String getRandomPassportNum(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         Random r = new Random();
         int first_num = r.nextInt(province_code.length);
@@ -207,7 +207,7 @@ public class Commontils {
     }
 
     public static String getRandomPassport(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int count = 7 ;
         Random r = new Random();
         int first_num = r.nextInt(passport.length);
@@ -223,7 +223,7 @@ public class Commontils {
     }
 
     public static String getRandomPassportHK(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Random r = new Random();
         sb.append("K");
         for(int i=0;i<8;i++){
@@ -235,7 +235,7 @@ public class Commontils {
     }
 
     public static String getRandomPassportMA(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Random r = new Random();
         sb.append("MA");
         for(int i=0;i<7;i++){
@@ -247,7 +247,7 @@ public class Commontils {
     }
 
     public static String getRandomHKMAPass(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int count = 7 ;
         Random r = new Random();
         int first_num = r.nextInt(hkmapass.length);
@@ -263,7 +263,7 @@ public class Commontils {
     }
 
     public static String getRandomOfficalCardNum(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Random r = new Random();
         int first_num = r.nextInt(officalcard.length);
         sb.append(officalcard[first_num]+"字第");
@@ -277,7 +277,7 @@ public class Commontils {
     }
 
     public static String getRandomSwiftCode(){
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Random r = new Random();
         int first_num = r.nextInt(swiftcode.length);
         sb.append(swiftcode[first_num]);

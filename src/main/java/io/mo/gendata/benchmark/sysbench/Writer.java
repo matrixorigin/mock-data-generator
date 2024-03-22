@@ -24,7 +24,7 @@ public class Writer implements Runnable{
     private String table_name = null;
     
     private Random random = new Random();
-    private StringBuffer shortBuffer = new StringBuffer();
+    private StringBuilder shortBuffer = new StringBuilder();
     
     private CountDownLatch latch = null;
     private static Logger LOG = Logger.getLogger(Writer.class.getName());
@@ -43,7 +43,7 @@ public class Writer implements Runnable{
 
     @Override
     public void run() {
-        StringBuffer records = new StringBuffer();
+        StringBuilder records = new StringBuilder();
         long start = System.currentTimeMillis();
         int partNumber = 1;
         DecimalFormat df = new DecimalFormat("0");

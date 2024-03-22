@@ -146,7 +146,7 @@ public class RandomCreditCardNumberGenerator {
         boolean isValid = false;
 
         try {
-            String reversedNumber = new StringBuffer(creditCardNumber)
+            String reversedNumber = new StringBuilder(creditCardNumber)
                     .reverse().toString();
             int mod10Count = 0;
             for (int i = 0; i < reversedNumber.length(); i++) {

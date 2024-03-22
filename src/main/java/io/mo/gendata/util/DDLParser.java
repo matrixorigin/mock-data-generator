@@ -13,7 +13,7 @@ import java.util.List;
 
 public class DDLParser {
     private static BufferedReader reader = null;
-    private static StringBuffer content = new StringBuffer();
+    private static StringBuilder content = new StringBuilder();
     private static ArrayList<TableDef> tableDefs = new ArrayList<>();
     private static Logger LOG = Logger.getLogger(DDLParser.class.getName());
     

@@ -25,7 +25,7 @@ public class CoreAPI {
     private  Faker cn_faker = new Faker(Locale.CHINA);
     private  Faker faker = us_faker;
     private static GenericGenerator CIDCardNG = ChineseIDCardNumberGenerator.getInstance();
-    private StringBuffer buffer = new StringBuffer();
+    private StringBuilder buffer = new StringBuilder();
 
     private ObjectMapper objectMapper = new ObjectMapper();
 

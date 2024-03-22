@@ -31,7 +31,7 @@ public class Table implements Runnable{
     private int count = 0;
     private AtomicInteger pos = new AtomicInteger(1);
     private int offset = 0;
-    private StringBuffer records = new StringBuffer();
+    private StringBuilder records = new StringBuilder();
 
     private CoreAPI api = new CoreAPI();
 
@@ -223,7 +223,7 @@ public class Table implements Runnable{
 //        File output = new File(CONFIG.OUTPUT);
 //        if(!output.exists())
 //            output.mkdirs();
-//        StringBuffer buffer = new StringBuffer();
+//        StringBuilder buffer = new StringBuilder();
 //        LOG.info("Now start to write the data records for the table["+name+"],please waiting...................");
 //        try {
 //            FileWriter writer = new FileWriter(CONFIG.OUTPUT+"/"+name+".tbl");
@@ -278,7 +278,7 @@ public class Table implements Runnable{
         private List<Field> t_fields = new ArrayList<Field>();
         private int batch = 0;
         private int id = 0;
-        private StringBuffer record = new StringBuffer();
+        private StringBuilder record = new StringBuilder();
         private HashMap<String,Object> currentIndexValue = new HashMap<>();
         public Producer(int id){
             this.id = id;
@@ -364,7 +364,7 @@ public class Table implements Runnable{
             File output = new File(CONFIG.OUTPUT);
             if (!output.exists())
                 output.mkdirs();
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             int partNumber = 1;
             
             //LOG.info("Now start to write the data records for the table[" + name + "],please waiting...................");

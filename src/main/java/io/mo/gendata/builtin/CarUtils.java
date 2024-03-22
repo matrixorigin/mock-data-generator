@@ -211,13 +211,13 @@ public class CarUtils {
 
     public static String spellVin(String beforeStr, String afterStr) {
 
-        StringBuffer vinBuffer = new StringBuffer();
+        StringBuilder vinBuffer = new StringBuilder();
 
         String preVin = vinBuffer.append(beforeStr).append("X").append(afterStr).toString();
 
         String isuredCode = getIsuredCode(preVin);
 
-        String vin = new StringBuffer(beforeStr).append(isuredCode).append(afterStr).toString();
+        String vin = new StringBuilder(beforeStr).append(isuredCode).append(afterStr).toString();
 
         if (isVin(vin)) {
 
@@ -243,17 +243,17 @@ public class CarUtils {
 
     public static String prepareBeforeStr() {
 
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder StringBuilder = new StringBuilder();
 
-        //stringBuffer.append("VNN");
+        //StringBuilder.append("VNN");
 
         for (int i = 0; i < 8; i++) {
 
-            stringBuffer.append(getRandomChar(areaArray));
+            StringBuilder.append(getRandomChar(areaArray));
 
         }
 
-        return stringBuffer.toString();
+        return StringBuilder.toString();
 
     }
 
@@ -269,17 +269,17 @@ public class CarUtils {
 
     public static String prepareAfterStr() {
 
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder StringBuilder = new StringBuilder();
 
         for (int i = 0; i < 3; i++) {
 
-            stringBuffer.append(getRandomChar(charArray));
+            StringBuilder.append(getRandomChar(charArray));
 
         }
 
-        stringBuffer.append(prepareNo());
+        StringBuilder.append(prepareNo());
 
-        return stringBuffer.toString();
+        return StringBuilder.toString();
 
     }
 
@@ -295,7 +295,7 @@ public class CarUtils {
 
         Random random = new Random();
 
-        StringBuffer numStrBuff = new StringBuffer();
+        StringBuilder numStrBuff = new StringBuilder();
 
         for(int i=0;i<5;i++){
 
