@@ -2,9 +2,12 @@ package io.mo.gendata;
 
 import cn.binarywang.tools.generator.ChineseIDCardNumberGenerator;
 import cn.binarywang.tools.generator.base.GenericGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import io.mo.gendata.builtin.CarUtils;
 import io.mo.gendata.builtin.DataFaker;
+import io.mo.gendata.builtin.JSONUtils;
 import io.mo.gendata.constant.CONFIG;
 import io.mo.gendata.constant.DATA;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -22,6 +25,9 @@ public class CoreAPI {
     private  Faker cn_faker = new Faker(Locale.CHINA);
     private  Faker faker = us_faker;
     private static GenericGenerator CIDCardNG = ChineseIDCardNumberGenerator.getInstance();
+    private StringBuffer buffer = new StringBuffer();
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private  DateFormat d_format = new SimpleDateFormat("yyyy-MM-dd");
     private  DateFormat dt_format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -80,7 +86,31 @@ public class CoreAPI {
         return UUID.randomUUID().toString();
     }
 
+    public String nextVector(int dimension){
+        buffer.delete(0,buffer.length());
+
+        buffer.append("[");
+        for(int i = 0; i < dimension; i++){
+            buffer.append(RandomUtils.nextFloat(0,1000));
+            if(i != dimension -1)
+                buffer.append(",");
+        }
+        buffer.append("]");
+        return buffer.toString();
+    }
+
+    public String nextJson(){
+        return JSONUtils.generateJson();
+    }
+
     //builtin filed: name
+    
+    
+    
+    
+    public String getUnique(){
+        return String.valueOf(System.currentTimeMillis());
+    }
     public String getName(){
         return cn_faker.name().name();
     }
@@ -244,5 +274,7 @@ public class CoreAPI {
         CoreAPI faker = new CoreAPI();
         //float f = 2/100;
         //System.out.println(f);
+        System.out.println(faker.nextVector(6));
+        System.out.println(faker.nextJson());
     }
 }

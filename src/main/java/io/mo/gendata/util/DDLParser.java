@@ -129,12 +129,24 @@ public class DDLParser {
                             columnDef.setType("int"+ PRECISSION.INT_DEFAULT);
                     }
 
+                    if(isVectorType(items,i)){
+                        ColumnDef columnDef = new ColumnDef();
+                        tableDef.addColumn(columnDef);
+                        columnDef.setName(items[i]);
+                        String type = items[ i + 1].
+                                replaceAll("vecf32","vector").
+                                replaceAll("vecf64","vector");
+                        columnDef.setType(type);
+                    }
+                    
+
                     if(isCharType(items,i) ||
                             isVarharType(items,i) ||
                             isDateType(items,i) ||
                             isDateTimeType(items,i) ||
                             isDecimalType(items,i) ||
-                            isUUIDType(items,i)
+                            isUUIDType(items,i) ||
+                            isJsonType(items,i)
                     ){
                         //System.out.println("columNmae = " + items[i]);
                         ColumnDef columnDef = new ColumnDef();
@@ -385,8 +397,7 @@ public class DDLParser {
     public static boolean isVarharType(String[] items, int index){
         if(
                 items[index + 1].toLowerCase().startsWith("varchar(") ||
-                items[index + 1].toLowerCase().startsWith("varchar2(") ||
-                items[index + 1].toLowerCase().startsWith("varchar2(")
+                items[index + 1].toLowerCase().startsWith("varchar2(") 
                         
 
         ){
@@ -411,9 +422,40 @@ public class DDLParser {
         return false;
     }
 
+    public static boolean isJsonType(String[] items, int index){
+        if(
+                items[index + 1].
+                        replace(",","").
+                        equalsIgnoreCase("json")
+
+        ){
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isVectorType(String[] items, int index){
+        if(
+                items[index + 1].
+                        toLowerCase().
+                        startsWith("vecf32(") ||
+                items[index + 1].
+                        toLowerCase().
+                        startsWith("vecf64(")
+
+        ){
+            return true;
+        }
+
+        return false;
+    }
+
     public static boolean isUUIDType(String[] items, int index){
         if(
-                items[index + 1].equalsIgnoreCase("uuid")
+                items[index + 1].
+                        replace(",","").
+                        equalsIgnoreCase("uuid")
 
         ){
             return true;

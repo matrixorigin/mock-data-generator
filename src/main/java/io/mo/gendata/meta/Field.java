@@ -29,7 +29,7 @@ public class Field {
     private int null_ratio = 100;
 
     private ArrayList<String> _enum = new ArrayList();
-    private ArrayList<String> prefix = new ArrayList();
+    private Prefix prefix = null;
     private List<Object> paras = new ArrayList<Object>();
     private Method method;
     
@@ -85,12 +85,11 @@ public class Field {
             _enum.add(values[i]);
     }
     
-    public void addPrefix(String[] values){
-        for(int i = 0; i < values.length; i++)
-            prefix.add(values[i]);
+    public void setPrefix(Prefix prefix){
+        this.prefix = prefix;
     }
 
-    public ArrayList<String> getPrefixList(){
+    public Prefix getPrefixList(){
         return prefix;
     }
 
@@ -205,6 +204,9 @@ public class Field {
         
         if(builtin != null){
             switch (builtin){
+                case FIELDATTR.UNIQUE_BUILTIN:
+                    value = api.getName();
+                    break;
                 case FIELDATTR.NAME_BUILTIN:
                     value = api.getName();
                     break;
@@ -354,6 +356,17 @@ public class Field {
                     value = api.nextUUID();
                     break;
                 }
+
+                case FIELDATTR.JSON_TYPE: {
+                    value = api.nextJson();
+                    break;
+                }
+
+                case FIELDATTR.VECTOR_TYPE: {
+                    int dismension = (Integer)paras.get(0);
+                    value = api.nextVector(dismension);
+                    break;
+                }
             }
         }
         
@@ -363,9 +376,8 @@ public class Field {
         }
 
 
-        if(prefix.size() > 0){
-            int randomV = RandomUtils.nextInt(0,prefix.size());
-            value = prefix.get(randomV)+ value;
+        if(prefix != null ){
+            value = prefix.getValue()+ value;
         }
         
         return value;
@@ -392,7 +404,7 @@ public class Field {
         field.setIndex(index);
         field.setRef(ref);
         field.setNull_ratio(null_ratio);
-        field.addPrefix((String[])prefix.toArray(new String[prefix.size()]));
+        field.setPrefix(prefix);
         //System.out.println(field.getPrefixList().size());
         return field;
     }

@@ -21,7 +21,10 @@ public class ColumnDef {
     }
 
     public void setType(String type) {
-        this.type = type;
+        if(type.endsWith(","))
+            this.type = type.substring(0,type.length() - 1);
+        else 
+            this.type = type;
     }
     
     

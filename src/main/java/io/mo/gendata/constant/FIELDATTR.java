@@ -9,6 +9,9 @@ public class FIELDATTR {
     public static final String VARCHAR_TYPE = "varchar";
     public static final String UUID_TYPE = "uuid";
     public static final String CHAR_TYPE = "char";
+    public static final String VECTOR_TYPE = "vector";
+    public static final String JSON_TYPE = "json";
+    public static final String UNIQUE_BUILTIN = "unique";
     public static final String  NAME_BUILTIN = "name";
     public static final String PHONENUMBER_BUILTIN = "phonenumber";
     public static final String CELLPHONE_BUILTIN = "cellphone";

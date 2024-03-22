@@ -1,6 +1,7 @@
 package io.mo.gendata.util;
 
 import io.mo.gendata.meta.Field;
+import io.mo.gendata.meta.Prefix;
 import io.mo.gendata.meta.Table;
 import org.apache.log4j.Logger;
 
@@ -93,8 +94,32 @@ public class TableParser {
                         }
 
                         if(f_prefix !=null ){
-                            String[] pValues = f_prefix.split(",");
-                            field.addPrefix(pValues);
+                            Prefix prefix = null;
+
+                            //if the prefix is random from int range
+                            if(f_prefix.startsWith("(")){
+                                String[] paras = f_prefix.substring(f_prefix.indexOf("(")+1,f_prefix.indexOf(")")).split(",");
+                                if(paras.length != 2){
+                                    LOG.error(String.format("The prefix for field[%s] is not well-formated, should be formated as (10000,2000)",f_name));
+                                    LOG.error(String.format("The prefix for field[%s] can not be \"%s\"",f_name));
+                                    System.exit(1);
+                                }
+                                int start = Integer.parseInt(paras[0]);
+                                int end = Integer.parseInt(paras[1]);
+                                if(start >= end){
+                                    LOG.error(String.format("The prefix for field[%s] can not be \"%s\", because %d is not smaller than %d",f_name,start,end));
+                                    System.exit(1);
+                                }
+                                prefix = new Prefix(start,end);
+
+                                field.setPrefix(prefix);
+                            }else {
+                                //if the prefix is enum
+                                String[] pValues = f_prefix.split(",");
+                                prefix = new Prefix();
+                                prefix.addValues(pValues);
+                                field.setPrefix(prefix);
+                            }
                         }
                         
                         if(f_index != null)
@@ -197,8 +222,32 @@ public class TableParser {
                     }
 
                     if(f_prefix !=null ){
-                        String[] pValues = f_prefix.split(",");
-                        field.addPrefix(pValues);
+                        Prefix prefix = null;
+
+                        //if the prefix is random from int range
+                        if(f_prefix.startsWith("(")){
+                            String[] paras = f_prefix.substring(f_prefix.indexOf("(")+1,f_prefix.indexOf(")")).split(",");
+                            if(paras.length != 2){
+                                LOG.error(String.format("The prefix for field[%s] is not well-formated, should be formated as (10000,2000)",f_name));
+                                LOG.error(String.format("The prefix for field[%s] can not be \"%s\"",f_name));
+                                System.exit(1);
+                            }
+                            int start = Integer.parseInt(paras[0]);
+                            int end = Integer.parseInt(paras[1]);
+                            if(start >= end){
+                                LOG.error(String.format("The prefix for field[%s] can not be \"%s\", because %d is not smaller than %d",f_name,start,end));
+                                System.exit(1);
+                            }
+                            prefix = new Prefix(start,end);
+
+                            field.setPrefix(prefix);
+                        }else {
+                            //if the prefix is enum
+                            String[] pValues = f_prefix.split(",");
+                            prefix = new Prefix();
+                            prefix.addValues(pValues);
+                            field.setPrefix(prefix);
+                        }
                     }
 
                     if(f_index != null)
