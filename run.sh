@@ -5,7 +5,8 @@ if [[ $# -eq 0 ]];then
     INPUT="def"
     OUTPUT="data"
 fi
-ARGS=`getopt -o c:o:h -l help,test:,parse:,benchmark:,config:,output:,tables:,table_size:,auto_inc: -- "$@"`
+FILECOUNT=0
+ARGS=`getopt -o c:o:h -l help,test:,file_count:,parse:,benchmark:,config:,output:,tables:,table_size:,auto_inc: -- "$@"`
 echo "ARGS=${ARGS}"
 eval set -- "${ARGS}"
 while :
@@ -18,6 +19,7 @@ do
     --table_size) TABLE_SIZE=$2; shift ;;
     --auto_inc) AUTO_INCR=$2; shift ;;
     --benchmark) BENCHARMARK=$2; shift ;;
+    --file_count) FILECOUNT=$2; shift ;;
     --parse) DDLFILE=$2; shift ;;
     --test) TEST=$2; shift ;;
     --) shift ; break ;;
@@ -26,7 +28,6 @@ do
   shift 
 done 
 
-echo "test=${TEST}"
 if [ "${HELP}" == "true" ];then
   echo -e "Usage:　bash rush.sh [option] [param] ...\nExcute MO mock data task."
     echo -e "\n   -h  show scripts usage.\n   -c  provide the input table definition file or directory."
@@ -99,16 +100,16 @@ if [ ! -z "${TEST}" ]; then
             io.mo.gendata.Faker --config ${CONFIG} --output ./data/ --test ${TEST}
   exit 0
 fi
-
+echo "file_count=${FILECOUNT}"
 if [ -z "${BENCHARMARK}" ]; then
   if [ -z "${DDLFILE}" ];then
     java -Xms1024M -Xmx10240M -cp ${libJars} \
           -Dconf.yml=${CONF_YAML} \
-          io.mo.gendata.Faker --config ${CONFIG} --output ${OUTPUT}
+          io.mo.gendata.Faker --config ${CONFIG} --output ${OUTPUT} --file_count ${FILECOUNT}
   else 
     java -Xms1024M -Xmx10240M -cp ${libJars} \
               -Dconf.yml=${CONF_YAML} \
-              io.mo.gendata.Faker --parse ${DDLFILE} --output ${OUTPUT}
+              io.mo.gendata.Faker --parse ${DDLFILE} --output ${OUTPUT} --file_count ${FILECOUNT}
   fi
 fi 
 

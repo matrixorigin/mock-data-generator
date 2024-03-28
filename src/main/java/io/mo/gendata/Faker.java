@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Faker {
-    private static Logger LOG = Logger.getLogger(Table.class.getName());
+    private static Logger LOG = Logger.getLogger(Faker.class.getName());
     public static void main(String[] args){
         
         boolean parseDDL = false;
@@ -25,6 +25,7 @@ public class Faker {
         options.addOption(null,"output",true,"the output dir that table data is generated");
         options.addOption(null,"parse",true,"to parse the speified ddl file");
         options.addOption(null,"test",true,"to test performance ");
+        options.addOption(null,"file_count",true,"to test performance ");
         
         CommandLineParser parser = new DefaultParser();
         try {
@@ -39,6 +40,11 @@ public class Faker {
                 CONFIG.INPUT = String.valueOf(cmd.getOptionValue("parse"));
                 LOG.info("The ddl file or dir that nedd to be parsed is  " + cmd.getOptionValue("tables"));
                 parseDDL = true;
+            }
+
+            if(cmd.hasOption("file_count")) {
+                CONFIG.FILE_COUNT = Integer.parseInt(cmd.getOptionValue("file_count"));
+                LOG.info("The count of table data files is  " + cmd.getOptionValue("file_count"));
             }
 
             if(cmd.hasOption("output")) {
@@ -110,8 +116,9 @@ public class Faker {
         if(ConfUtil.getBatchSize() != 0)
             CONFIG.BATCH_COUNT = ConfUtil.getBatchSize();
 
-        if(ConfUtil.getFileCount() != 0)
+        if(ConfUtil.getFileCount() != 0 && CONFIG.FILE_COUNT == 0) {
             CONFIG.FILE_COUNT = ConfUtil.getFileCount();
+        }
         
         LOG.info("field_separator = " + CONFIG.FIELD_SEPARATOR);
         LOG.info("line_separator = " + CONFIG.LINE_SEPARATOR);

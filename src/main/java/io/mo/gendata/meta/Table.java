@@ -486,7 +486,7 @@ public class Table implements Runnable{
                     String record = null;
                     COSClient cosClient = COSUtils.getCOSClient();
                     String bucketName = ConfUtil.getBucket();
-                    String key =CONFIG.OUTPUT + "/" + name + "_" + id + ".tbl";
+                    String key =CONFIG.OUTPUT + name + "_" + id + ".tbl";
                     InitiateMultipartUploadRequest initiateMultipartUploadRequest = new InitiateMultipartUploadRequest(bucketName, key);
                     InitiateMultipartUploadResult initiateMultipartUploadResult = cosClient.initiateMultipartUpload(initiateMultipartUploadRequest);
                     String uploadId = initiateMultipartUploadResult.getUploadId();
@@ -509,15 +509,17 @@ public class Table implements Runnable{
                             if (w_count == batch) {
                                 byte[] bytes = buffer.toString().getBytes(StandardCharsets.UTF_8);
                                 if (bytes.length > CONFIG.MIN_UPLOAD_SIZE) {
+                                    LOG.info(String.format("Loading file: name[%s],partNumber[%d]",key,partNumber));
                                     PartETag partETag = uploadPart(cosClient, bucketName, key, uploadId, partNumber, bytes);
                                     partETags.add(partETag);
                                     buffer.delete(0, records.length());
-                                    pos.addAndGet(CONFIG.BATCH_COUNT);
                                 } else {
                                     LOG.error(String.format("The upoading size is less than min uploading size[%d]", CONFIG.MIN_UPLOAD_SIZE));
                                     cosClient.shutdown();
                                     System.exit(1);
                                 }
+                                
+                                break;
                             }
                             
                             if (w_count >= CONFIG.BATCH_COUNT && w_count % CONFIG.BATCH_COUNT == 0) {
@@ -534,7 +536,7 @@ public class Table implements Runnable{
                                     cosClient.shutdown();
                                     System.exit(1);
                                 }
-                                LOG.info(w_count + " records for table[" + name + "] has been generated ," + (int) (((double) w_count / count) * 100) + "% completed.");
+                                LOG.info(w_count + " records for file[" + key + "] has been generated ," + (int) (((double) w_count / batch) * 100) + "% completed.");
                                 //writer.flush();
                             }
 
@@ -559,7 +561,8 @@ public class Table implements Runnable{
                     cosClient.completeMultipartUpload(completeMultipartUploadRequest);
                     buffer.delete(0,buffer.length());
                     long end = System.currentTimeMillis();
-                    LOG.info(String.format("File[%s] has been generated successfully, and cost: %d s",name,(int)((end - start)/1000)));
+                    pos.addAndGet(CONFIG.BATCH_COUNT);
+                    LOG.info(String.format("File[%s] has been generated successfully, and cost: %d s",key,(int)((end - start)/1000)));
                 }
                 
                 

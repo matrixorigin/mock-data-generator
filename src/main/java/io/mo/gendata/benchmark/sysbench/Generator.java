@@ -33,6 +33,8 @@ public class Generator {
         options.addOption("s","table_size",true,"for sysbench data prepare, set table size");
         options.addOption("a","auto_inc",true,"for sysbench data prepare, set table size");
         options.addOption("o","output",true,"for sysbench data prepare, set table size");
+        options.addOption("o","file_count",true,"for sysbench data prepare, set table size");
+        
         CommandLineParser parser = new DefaultParser();
         try {
 
@@ -67,6 +69,11 @@ public class Generator {
             
             if(ConfUtil.getBatchSize() != 0)
                 CONFIG.BATCH_COUNT = ConfUtil.getBatchSize();
+
+            if(cmd.hasOption("file_count")) {
+                CONFIG.FILE_COUNT = Integer.parseInt(cmd.getOptionValue("file_count"));
+                LOG.info("The count of table data files is  " + cmd.getOptionValue("file_count"));
+            }
                 
             
 
