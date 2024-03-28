@@ -5,7 +5,7 @@ if [[ $# -eq 0 ]];then
     INPUT="def"
     OUTPUT="data"
 fi
-ARGS=`getopt -o c:o:h -l help,parse:,benchmark:,config:,output:,tables:,table_size:,auto_inc: -- "$@"`
+ARGS=`getopt -o c:o:h -l help,test:,parse:,benchmark:,config:,output:,tables:,table_size:,auto_inc: -- "$@"`
 echo "ARGS=${ARGS}"
 eval set -- "${ARGS}"
 while :
@@ -19,12 +19,14 @@ do
     --auto_inc) AUTO_INCR=$2; shift ;;
     --benchmark) BENCHARMARK=$2; shift ;;
     --parse) DDLFILE=$2; shift ;;
+    --test) TEST=$2; shift ;;
     --) shift ; break ;;
     *) echo "Invalid option: $1" exit 1 ;;
   esac
   shift 
 done 
 
+echo "test=${TEST}"
 if [ "${HELP}" == "true" ];then
   echo -e "Usage:　bash rush.sh [option] [param] ...\nExcute MO mock data task."
     echo -e "\n   -h  show scripts usage.\n   -c  provide the input table definition file or directory."
@@ -90,6 +92,14 @@ for libJar in `find ${LIB_WORKSPACE} -name "*.jar"`
 do
   libJars=${libJars}:${libJar}
 done
+
+if [ ! -z "${TEST}" ]; then
+  java -Xms1024M -Xmx10240M -cp ${libJars} \
+            -Dconf.yml=${CONF_YAML} \
+            io.mo.gendata.Faker --config ${CONFIG} --output ./data/ --test ${TEST}
+  exit 0
+fi
+
 if [ -z "${BENCHARMARK}" ]; then
   if [ -z "${DDLFILE}" ];then
     java -Xms1024M -Xmx10240M -cp ${libJars} \

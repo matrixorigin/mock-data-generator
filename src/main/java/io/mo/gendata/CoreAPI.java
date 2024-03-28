@@ -2,22 +2,25 @@ package io.mo.gendata;
 
 import cn.binarywang.tools.generator.ChineseIDCardNumberGenerator;
 import cn.binarywang.tools.generator.base.GenericGenerator;
+import cn.hutool.json.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import io.mo.gendata.builtin.CarUtils;
 import io.mo.gendata.builtin.DataFaker;
 import io.mo.gendata.builtin.JSONUtils;
+import io.mo.gendata.builtin.UUID;
 import io.mo.gendata.constant.CONFIG;
 import io.mo.gendata.constant.DATA;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-import java.util.UUID;
+import java.util.Random;
 
 public class CoreAPI {
     private static Logger LOG = Logger.getLogger(CoreAPI.class.getName());
@@ -32,6 +35,10 @@ public class CoreAPI {
     private  DateFormat d_format = new SimpleDateFormat("yyyy-MM-dd");
     private  DateFormat dt_format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     
+    private Random random = new Random();
+    
+    private UUID uuid = new UUID();
+    
     // autoincrement
     public String getAutoIncrement(){
         return CONFIG.NULL_VALUE;
@@ -39,7 +46,8 @@ public class CoreAPI {
     
     // fake random int(x,y)
     public int nextInt(int x,int y){
-        int num = RandomUtils.nextInt(x,y);
+        int num = Math.abs(random.nextInt());
+        num = num%(y-x+1) + x;
         return num;
     }
 
@@ -48,9 +56,9 @@ public class CoreAPI {
         if(scale > length){
             LOG.error("The scale length must be less than decimal number length for the decimal type,program will exit.");
         }
-        int s_l = nextInt(0,scale);
+        int s_l = nextInt(1,scale);
         if(s_l >= DATA.MAXVALUE.length) s_l = DATA.MAXVALUE.length/2;
-        int s_n = nextInt(0,DATA.MAXVALUE[s_l]);
+        int s_n = nextInt(0,DATA.MAXVALUE[s_l]) + 1;
 
         int i_l = length - s_l;
         if(i_l >= DATA.MAXVALUE.length) i_l = DATA.MAXVALUE.length/2;
@@ -72,18 +80,19 @@ public class CoreAPI {
 
     //fake random varchar
     public String nextChar(int length){
-        return RandomStringUtils.randomAlphabetic(length);
+        return randomStr(length, 0, 0, true, false, null, random);
     }
     
     //fake random varchar
     public String nextVarchar(int length){
-        int len = faker.random().nextInt(1,length);
-        return RandomStringUtils.randomAlphabetic(len);
+        int len = nextInt(1,length);
+        return randomStr(len, 0, 0, true, false, null, random);
     }
     
     //get UUID
     public String nextUUID(){
-        return UUID.randomUUID().toString();
+        
+        return uuid.generateUUID();
     }
 
     public String nextVector(int dimension){
@@ -91,7 +100,7 @@ public class CoreAPI {
 
         buffer.append("[");
         for(int i = 0; i < dimension; i++){
-            buffer.append(RandomUtils.nextFloat(0,1000));
+            buffer.append(nextDecimal(5,2));
             if(i != dimension -1)
                 buffer.append(",");
         }
@@ -100,7 +109,7 @@ public class CoreAPI {
     }
 
     public String nextJson(){
-        return JSONUtils.generateJson();
+        return generateJson();
     }
 
     //builtin filed: name
@@ -267,6 +276,108 @@ public class CoreAPI {
     public String getAddress(){
       return cn_faker.address().fullAddress();
     }
+
+    public static String randomStr(int count, int start, int end, final boolean letters, final boolean numbers,
+                                   final char[] chars, final Random random) {
+        if (count == 0) {
+            return StringUtils.EMPTY;
+        } else if (count < 0) {
+            throw new IllegalArgumentException("Requested random string length " + count + " is less than 0.");
+        }
+        if (chars != null && chars.length == 0) {
+            throw new IllegalArgumentException("The chars array must not be empty");
+        }
+
+        if (start == 0 && end == 0) {
+            if (chars != null) {
+                end = chars.length;
+            } else {
+                if (!letters && !numbers) {
+                    end = Character.MAX_CODE_POINT;
+                } else {
+                    end = 'z' + 1;
+                    start = ' ';
+                }
+            }
+        } else {
+            if (end <= start) {
+                throw new IllegalArgumentException("Parameter end (" + end + ") must be greater than start (" + start + ")");
+            }
+        }
+
+        final int zero_digit_ascii = 48;
+        final int first_letter_ascii = 65;
+
+        if (chars == null && (numbers && end <= zero_digit_ascii
+                || letters && end <= first_letter_ascii)) {
+            throw new IllegalArgumentException("Parameter end (" + end + ") must be greater then (" + zero_digit_ascii + ") for generating digits " +
+                    "or greater then (" + first_letter_ascii + ") for generating letters.");
+        }
+
+        final StringBuilder builder = new StringBuilder(count);
+        final int gap = end - start;
+
+        while (count-- != 0) {
+            int codePoint;
+            if (chars == null) {
+                codePoint = random.nextInt(gap) + start;
+
+                switch (Character.getType(codePoint)) {
+                    case Character.UNASSIGNED:
+                    case Character.PRIVATE_USE:
+                    case Character.SURROGATE:
+                        count++;
+                        continue;
+                }
+
+            } else {
+                codePoint = chars[random.nextInt(gap) + start];
+            }
+
+            final int numberOfChars = Character.charCount(codePoint);
+            if (count == 0 && numberOfChars > 1) {
+                count++;
+                continue;
+            }
+
+            if (letters && Character.isLetter(codePoint)
+                    || numbers && Character.isDigit(codePoint)
+                    || !letters && !numbers) {
+                builder.appendCodePoint(codePoint);
+
+                if (numberOfChars == 2) {
+                    count--;
+                }
+
+            } else {
+                count++;
+            }
+        }
+        return builder.toString();
+    }
+
+    public String generateJson(){
+        String key = null;
+        String value = null;
+        JSONObject json = new JSONObject();
+        Random random = new Random();
+        json.putOpt("id", nextInt(10000,1000000));
+        json.putOpt("name", cn_faker.name().fullName());
+        json.putOpt("value", nextInt(10000000,90000000));
+        json.putOpt("isActive", RandomUtils.nextBoolean());
+        for(int i =0 ; i < 10; i ++){
+            int len_key = nextInt(0,10);
+            int len_value = nextInt(0,10);
+            key = randomStr(len_key, 0, 0, true, false, null, random);
+            //key = RandomStringUtils.randomAlphabetic(len_key);
+            value = randomStr(len_value, 0, 0, true, false, null, random);
+            //value = RandomStringUtils.randomAlphabetic(len_value);
+            json.putOpt(key,value);
+        }
+
+        return json.toString();
+    }
+    
     
     
     public static void main(String args[]){
@@ -274,7 +385,10 @@ public class CoreAPI {
         CoreAPI faker = new CoreAPI();
         //float f = 2/100;
         //System.out.println(f);
-        System.out.println(faker.nextVector(6));
-        System.out.println(faker.nextJson());
+        for(int i = 0; i < 100; i++){
+            System.out.println(faker.nextUUID());
+        }
     }
+    
+    
 }

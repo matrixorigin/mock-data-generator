@@ -13,7 +13,7 @@ public class CONFIG {
     public static int MAX_QUEUE_SIZE = 1000000;
     
     public static int THRESHOLD_MUTIL_THREAD = 1000000;
-    public static int THREAD_COUNT = Runtime.getRuntime().availableProcessors();
+    public static int THREAD_COUNT = Runtime.getRuntime().availableProcessors()*2/3;
 
     public static String FIELD_SEPARATOR = ",";
     public static String LINE_SEPARATOR = "\n";

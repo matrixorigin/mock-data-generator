@@ -1,25 +1,17 @@
 package io.mo.gendata.meta;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.*;
 import io.mo.gendata.CoreAPI;
 import io.mo.gendata.constant.CONFIG;
-import io.mo.gendata.constant.DATA;
 import io.mo.gendata.cos.COSUtils;
 import io.mo.gendata.util.ConfUtil;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -61,8 +53,6 @@ public class Table implements Runnable{
 
     public void addField(Field field){
         fields.add(field);
-        //field.setApi(api);
-        
     }
     
     public void makeIndex(){
@@ -134,36 +124,40 @@ public class Table implements Runnable{
 
         return records.toString();
     }
-
-    public void test(){
-        long start = System.currentTimeMillis();
-        for(int i = 0; i < count; i++){
-            for(int j = 0 ; j < fields.size() ; j++){
-                fields.get(j).nextValue();
+    
+    public void startTester(int threadCount,CountDownLatch latch){
+            //if count > CONFIG.THRESHOLD_MUTIL_THREAD,start multiple  producer
+        queues = new ArrayBlockingQueue[threadCount];
+        int batch = 0;
+        for(int i = 0; i < queues.length;i++){
+            queues[i] = new ArrayBlockingQueue(CONFIG.MAX_QUEUE_SIZE);
+            batch = count / threadCount;
+            if(i == queues.length - 1){
+                batch = count - (count / threadCount)*(queues.length - 1);
             }
-            //records.append(fields.get(fields.size() - 1).nextValue(api) + SEPARATOR.LINE_SEPARATOR);
+            Tester tester = new Tester(i,batch,latch);
+            service.execute(tester);
         }
-        long end = System.currentTimeMillis();
-        LOG.info("costs "+(float)(end - start)/1000+" seconds.");
     }
-
-
+    
     public void startProducer(){
         //if count <= CONFIG.THRESHOLD_MUTIL_THREAD,only one producer
         if( count <= CONFIG.THRESHOLD_MUTIL_THREAD){
             queues = new ArrayBlockingQueue[1];
             queues[0] = new ArrayBlockingQueue(CONFIG.MAX_QUEUE_SIZE);
-            Producer producer = new Producer(0);
+            Producer producer = new Producer(0,count);
             service.execute(producer);
         }else {
             //if count > CONFIG.THRESHOLD_MUTIL_THREAD,start multiple  producer
             queues = new ArrayBlockingQueue[CONFIG.THREAD_COUNT];
+            int batch = 0;
             for(int i = 0; i < CONFIG.THREAD_COUNT;i++){
                 queues[i] = new ArrayBlockingQueue(CONFIG.MAX_QUEUE_SIZE);
-//                int batch = count/CONFIG.THREAD_COUNT;
-//                if( i == CONFIG.THREAD_COUNT -1)
-//                    batch = count - i*batch;
-                Producer producer = new Producer(i);
+                batch = count / CONFIG.THREAD_COUNT;
+                if(i == queues.length - 1){
+                    batch = count - (count / CONFIG.THREAD_COUNT)*(queues.length - 1);
+                }
+                Producer producer = new Producer(i,batch);
                 service.execute(producer);
             }
         }
@@ -204,14 +198,9 @@ public class Table implements Runnable{
                 }
                 continue;
             }
-            LOG.info(current + " records for table[" + name + "] has been generated ," + (int) (((double) current / count) * 100) + "% completed.");
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
+            if(current > CONFIG.BATCH_COUNT && current % CONFIG.THRESHOLD_MUTIL_THREAD == 0)
+                LOG.info(current + " records for table[" + name + "] has been generated ," + (int) (((double) current / count) * 100) + "% completed.");
+            
         }
         
         completed = true;
@@ -219,56 +208,68 @@ public class Table implements Runnable{
         long end = System.currentTimeMillis();
         LOG.info(count + " records for table[" + name + "] has been generated ," + (int) (((double) count / count) * 100) + "% completed.");
         LOG.info("All the records for table["+name+"] has been generated completely,and costs "+(float)(end - start)/1000+" seconds.");
-        //check whether the path exists,if not make the file
-//        File output = new File(CONFIG.OUTPUT);
-//        if(!output.exists())
-//            output.mkdirs();
-//        StringBuilder buffer = new StringBuilder();
-//        LOG.info("Now start to write the data records for the table["+name+"],please waiting...................");
-//        try {
-//            FileWriter writer = new FileWriter(CONFIG.OUTPUT+"/"+name+".tbl");
-//            int w_count = 1;
-//            String record = null;
-//            long start = System.currentTimeMillis();
-//            while(true) {
-//                //writer.write((String) queue.take());
-//                for(int i = 0; i < queues.length; i++){
-//                    record =  (String) queues[i].peek();
-//                    if(record == null)
-//                        continue;
-//                    
-//                    buffer.append(record);
-//                    w_count++;
-//                    if(w_count >= CONFIG.BATCH_COUNT && w_count%CONFIG.BATCH_COUNT == 0) {
-//                        writer.write(buffer.toString());
-//                        buffer.delete(0,buffer.length());
-//                        //LOG.info(w_count + " records for table[" + name + "] has been generated ," + (int) (((double) w_count / count) * 100) + "% completed.");
-//                        //writer.flush();
-//                    }
-//
-//                    if(w_count > count)
-//                        break;
-//                }
-//
-//                if(w_count > count)
-//                    break;
-//                
-//            }
-//            writer.write(buffer.toString());
-//            buffer.delete(0,buffer.length());
-//            writer.flush();
-//            writer.close();
-//            service.shutdown();
-//
-//            long end = System.currentTimeMillis();
-//            completed = true;
-//            LOG.info("All the records for table["+name+"] has been generated completely,and costs "+(float)(end - start)/1000+" seconds.");
-//
-//            
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            System.exit(1);
-//        }
+        
+        //
+        for(int i = 0; i < queues.length; i++){
+            queues[i].clear();
+        }
+    }
+
+    public void test(int threadCount) {
+        CountDownLatch latch = new CountDownLatch(threadCount);
+        startTester(threadCount,latch);
+        String record = null;
+        LOG.info("Now start to write the data records for the table["+name+"],please waiting...................");
+        FileWriter writer = null;
+
+        long start = System.currentTimeMillis();
+        try {
+            writer = new FileWriter(CONFIG.OUTPUT + "/" + name + "_" + 0 + ".tbl");
+            int w_count = 1;
+            File output = new File(CONFIG.OUTPUT);
+            if (!output.exists())
+                output.mkdirs();
+            StringBuilder buffer = new StringBuilder();
+            while (true) {
+                //writer.write((String) queue.take());
+                for (int i = 0; i < queues.length; i++) {
+                    record = (String) queues[i].poll();
+                    if (record == null)
+                        continue;
+
+                    buffer.append(record);
+                    w_count++;
+                    if (w_count >= CONFIG.BATCH_COUNT && w_count % CONFIG.BATCH_COUNT == 0) {
+                        writer.write(buffer.toString());
+                        pos.addAndGet(CONFIG.BATCH_COUNT);
+                        buffer.delete(0, buffer.length());
+                        LOG.info(w_count + " records for table[" + name + "] has been generated ," + (int) (((double) w_count / count) * 100) + "% completed.");
+                        writer.flush();
+                    }
+                    
+                    if (w_count > count)
+                        break;
+                }
+
+                if (w_count > count)
+                    break;
+            }
+
+            writer.write(buffer.toString());
+            pos.addAndGet(count % CONFIG.BATCH_COUNT);
+            buffer.delete(0, buffer.length());
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
+        completed = true;
+        service.shutdown();
+        long end = System.currentTimeMillis();
+        System.out.println("All the records for table["+name+"] has been generated completely,and costs "+(float)(end - start)/1000+" seconds.");
+        LOG.info(count + " records for table[" + name + "] has been generated ," + (int) (((double) count / count) * 100) + "% completed.");
+        LOG.info("All the records for table["+name+"] has been generated completely,and costs "+(float)(end - start)/1000+" seconds.");
     }
 
     /*
@@ -280,7 +281,7 @@ public class Table implements Runnable{
         private int id = 0;
         private StringBuilder record = new StringBuilder();
         private HashMap<String,Object> currentIndexValue = new HashMap<>();
-        public Producer(int id){
+        public Producer(int id,int batch){
             this.id = id;
             this.batch = batch;
             for(int i = 0; i < fields.size();i++){
@@ -290,25 +291,21 @@ public class Table implements Runnable{
         
         @Override
         public void run() {
-            long start = System.currentTimeMillis();
             int i = 0;
             while(!completed){
                 try {
                     queues[id].put(nextRecord());
+                    i++;
+                    if(i > batch)
+                        break;
+                    
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
-            long end = System.currentTimeMillis();
         }
 
         public String nextRecord(){
-//            String record = ""+t_fields.get(0).nextValue();
-//            for(int i = 1 ; i < t_fields.size() - 1; i++){
-//                record = record + t_fields.get(i).nextValue() + CONFIG.FIELD_SEPARATOR;
-//            }
-//            record = record + t_fields.get(t_fields.size() - 1).nextValue() + CONFIG.LINE_SEPARATOR;
-//            return record;
             record.delete(0,record.length());
             //record.append(""+t_fields.get(0).nextValue());
             for(int i = 0 ; i < t_fields.size(); i++){
@@ -323,8 +320,6 @@ public class Table implements Runnable{
                         for(Field refField:index.getRefFields()){
                             Object refNextValue = refField.nextValue();
                             index.addIndexRefValue(nextValue,refField.getName(),refNextValue);
-                            
-                         //   System.out.println(t_field.getIndex() + " = " + nextValue+", "+refField.getName()+" = "+refNextValue);
                         }
                         lock.unlock();
                     }
@@ -341,9 +336,85 @@ public class Table implements Runnable{
                     record.append(CONFIG.FIELD_SEPARATOR);
                 else 
                     record.append(CONFIG.LINE_SEPARATOR);
-                //record.append(t_fields.get(i).nextValue() + CONFIG.FIELD_SEPARATOR);
             }
-            //record.append(t_fields.get(t_fields.size() - 1).nextValue() + CONFIG.LINE_SEPARATOR);
+            return record.toString();
+        }
+    }
+
+    private class Tester implements Runnable{
+        private List<Field> t_fields = new ArrayList<Field>();
+        private int batch = 0;
+        private int id = 0;
+        private StringBuilder record = new StringBuilder();
+        private HashMap<String,Object> currentIndexValue = new HashMap<>();
+        private CountDownLatch latch = null;
+
+        CoreAPI api = new CoreAPI();
+        public Tester(int id,int batch,CountDownLatch latch){
+            this.id = id;
+            this.batch = batch;
+            for(int i = 0; i < fields.size();i++){
+                t_fields.add(fields.get(i).clone());
+            }
+            this.latch = latch;
+        }
+
+        @Override
+        public void run() {
+            long costR = 0;
+            long start = System.currentTimeMillis();
+            int i = 0;
+            while(!completed){
+                try {
+                    queues[id].put(nextRecord());
+                    
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                i++;
+                if( i > batch){
+                    break;
+                }
+
+            }
+            long end = System.currentTimeMillis();
+            LOG.info(String.format("Thread[%d] cost: %d,costR: %d, and number: %d, and batch: %d",id,(end - start),costR,i,batch));
+            //System.out.println(String.format("Thread[%d] cost: %d,costR: %d, and number: %d, and batch: %d",id,(end - start),costR,i,batch));
+            latch.countDown();
+        }
+
+        public String nextRecord(){
+            record.delete(0,record.length());
+            //record.append(""+t_fields.get(0).nextValue());
+            for(int i = 0 ; i < t_fields.size(); i++){
+                Field t_field = t_fields.get(i);
+                Object nextValue = t_field.nextValue();
+                if(t_field.isIndex()){
+                    Index index = indexMap.get(t_field.getIndex());
+                    if(!index.indexValueExisted(nextValue)){
+                        lock.lock();
+
+                        index.addIndexValue(nextValue);
+                        for(Field refField:index.getRefFields()){
+                            Object refNextValue = refField.nextValue();
+                            index.addIndexRefValue(nextValue,refField.getName(),refNextValue);
+                        }
+                        lock.unlock();
+                    }
+                    currentIndexValue.put(t_field.getIndex(),nextValue);
+                }
+
+                if(t_field.isRefIndex()){
+                    nextValue = indexMap.get(t_field.getRef()).
+                            getIndexRefValues(currentIndexValue.get(t_field.getRef()),t_field.getName());
+                }
+                record.append(nextValue);
+
+                if(i < fields.size() -1)
+                    record.append(CONFIG.FIELD_SEPARATOR);
+                else
+                    record.append(CONFIG.LINE_SEPARATOR);
+            }
             return record.toString();
         }
     }
@@ -370,7 +441,8 @@ public class Table implements Runnable{
             //LOG.info("Now start to write the data records for the table[" + name + "],please waiting...................");
             try {
                 if(ConfUtil.getStorage().equalsIgnoreCase("local")) {
-                    FileWriter writer = new FileWriter(CONFIG.OUTPUT + "/" + name + "_" + id + ".tbl");
+                    String fileName = CONFIG.OUTPUT + name + "_" + id + ".tbl";
+                    FileWriter writer = new FileWriter(fileName);
                     int w_count = 1;
                     String record = null;
                     long start = System.currentTimeMillis();
@@ -387,8 +459,8 @@ public class Table implements Runnable{
                                 writer.write(buffer.toString());
                                 pos.addAndGet(CONFIG.BATCH_COUNT);
                                 buffer.delete(0, buffer.length());
-                                //LOG.info(w_count + " records for table[" + name + "] has been generated ," + (int) (((double) w_count / count) * 100) + "% completed.");
-                                //writer.flush();
+                                LOG.info(w_count + " records for file[" + fileName + "] has been generated ," + (int) (((double) w_count / batch) * 100) + "% completed.");
+                                writer.flush();
                             }
 
                             if (w_count > batch)
@@ -404,12 +476,14 @@ public class Table implements Runnable{
                     buffer.delete(0, buffer.length());
                     writer.flush();
                     writer.close();
+                    long end = System.currentTimeMillis();
+                    
+                    LOG.info(String.format("File[%s] has been generated successfully, and cost: %d s",fileName,(int)((end - start)/1000)));
                 }
 
                 if(ConfUtil.getStorage().equalsIgnoreCase("cos")) {
                     int w_count = 1;
                     String record = null;
-                    long start = System.currentTimeMillis();
                     COSClient cosClient = COSUtils.getCOSClient();
                     String bucketName = ConfUtil.getBucket();
                     String key =CONFIG.OUTPUT + "/" + name + "_" + id + ".tbl";
@@ -417,6 +491,7 @@ public class Table implements Runnable{
                     InitiateMultipartUploadResult initiateMultipartUploadResult = cosClient.initiateMultipartUpload(initiateMultipartUploadRequest);
                     String uploadId = initiateMultipartUploadResult.getUploadId();
                     List<PartETag> partETags = new ArrayList<>();
+                    long start = System.currentTimeMillis();
                     while (true) {
                         //writer.write((String) queue.take());
                         for (int i = 0; i < queues.length; i++) {
@@ -459,7 +534,7 @@ public class Table implements Runnable{
                                     cosClient.shutdown();
                                     System.exit(1);
                                 }
-                                //LOG.info(w_count + " records for table[" + name + "] has been generated ," + (int) (((double) w_count / count) * 100) + "% completed.");
+                                LOG.info(w_count + " records for table[" + name + "] has been generated ," + (int) (((double) w_count / count) * 100) + "% completed.");
                                 //writer.flush();
                             }
 
@@ -483,12 +558,16 @@ public class Table implements Runnable{
                     CompleteMultipartUploadRequest completeMultipartUploadRequest = new CompleteMultipartUploadRequest(bucketName, key, uploadId, partETags);
                     cosClient.completeMultipartUpload(completeMultipartUploadRequest);
                     buffer.delete(0,buffer.length());
+                    long end = System.currentTimeMillis();
+                    LOG.info(String.format("File[%s] has been generated successfully, and cost: %d s",name,(int)((end - start)/1000)));
                 }
                 
                 
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
+                System.exit(1);
             }
+            
         }
 
         public PartETag uploadPart(COSClient client,String bucketName,String key,String uploadId,int partNumber,byte[] bytes){
@@ -507,10 +586,8 @@ public class Table implements Runnable{
         }
     }
     
-
-    public static void main(String args[]){
-        int a = 10;
-        int b = 100;
-        System.out.println((int)((a/(float)b)*100));
+    public static void main(String args[]) {
+        Table table = new Table();
+        table.test(5);
     }
 }
