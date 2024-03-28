@@ -33,7 +33,7 @@ public class Generator {
         options.addOption("s","table_size",true,"for sysbench data prepare, set table size");
         options.addOption("a","auto_inc",true,"for sysbench data prepare, set table size");
         options.addOption("o","output",true,"for sysbench data prepare, set table size");
-        options.addOption("o","file_count",true,"for sysbench data prepare, set table size");
+        options.addOption("f","file_count",true,"for sysbench data prepare, set table size");
         
         CommandLineParser parser = new DefaultParser();
         try {

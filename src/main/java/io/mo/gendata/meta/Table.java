@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,6 +39,8 @@ public class Table implements Runnable{
     private HashMap<String,Index> indexMap = new HashMap();
     
     private boolean completed = false;
+
+    DecimalFormat decimalFormat = new DecimalFormat("#");
 
     public Table(){
 
@@ -200,14 +203,14 @@ public class Table implements Runnable{
                 continue;
             }
             if(current > CONFIG.BATCH_COUNT && current % CONFIG.THRESHOLD_MUTIL_THREAD == 0)
-                LOG.info(current + " records for table[" + name + "] has been generated ," + (int) (( current / count) * 100) + "% completed.");
+                LOG.info(decimalFormat.format(current) + " records for table[" + name + "] has been generated ," + (int) (( current / count) * 100) + "% completed.");
             
         }
         
         completed = true;
         service.shutdown();
         long end = System.currentTimeMillis();
-        LOG.info(count + " records for table[" + name + "] has been generated ," + (int) (( count / count) * 100) + "% completed.");
+        LOG.info(decimalFormat.format(count) + " records for table[" + name + "] has been generated ," + (int) (( count / count) * 100) + "% completed.");
         LOG.info("All the records for table["+name+"] has been generated completely,and costs "+(float)(end - start)/1000+" seconds.");
         
         //
@@ -444,7 +447,7 @@ public class Table implements Runnable{
                 if(ConfUtil.getStorage().equalsIgnoreCase("local")) {
                     String fileName = CONFIG.OUTPUT + name + "_" + id + ".tbl";
                     FileWriter writer = new FileWriter(fileName);
-                    int w_count = 1;
+                    double w_count = 1;
                     String record = null;
                     long start = System.currentTimeMillis();
                     while (true) {
@@ -460,7 +463,7 @@ public class Table implements Runnable{
                                 writer.write(buffer.toString());
                                 pos.addAndGet(CONFIG.BATCH_COUNT);
                                 buffer.delete(0, buffer.length());
-                                LOG.info(w_count + " records for file[" + fileName + "] has been generated ," + (int) (((double) w_count / batch) * 100) + "% completed.");
+                                LOG.info(decimalFormat.format(w_count)+ " records for file[" + fileName + "] has been generated ," + (int) (((double) w_count / batch) * 100) + "% completed.");
                                 writer.flush();
                             }
 
@@ -537,7 +540,7 @@ public class Table implements Runnable{
                                     cosClient.shutdown();
                                     System.exit(1);
                                 }
-                                LOG.info(w_count + " records for file[" + key + "] has been generated ," + (int) (((double) w_count / batch) * 100) + "% completed.");
+                                LOG.info(decimalFormat.format(w_count) + " records for file[" + key + "] has been generated ," + (int) (((double) w_count / batch) * 100) + "% completed.");
                                 //writer.flush();
                             }
 
@@ -594,7 +597,6 @@ public class Table implements Runnable{
         //Table table = new Table();
         //table.test(5);
         AtomicDouble ad = new AtomicDouble(5000000000.0);
-        System.out.println(String.valueOf(ad.doubleValue())+"fdasfads");
         
     }
 }

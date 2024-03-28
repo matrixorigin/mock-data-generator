@@ -28,6 +28,7 @@ public class Writer implements Runnable{
     
     private CountDownLatch latch = null;
     private static Logger LOG = Logger.getLogger(Writer.class.getName());
+    private DecimalFormat decimalFormat = new DecimalFormat("#");
     PrintWriter writer = null;
     
     
@@ -70,7 +71,7 @@ public class Writer implements Runnable{
                         if (i < table_size - 1)
                             records.append(CONFIG.LINE_SEPARATOR);
                     } else {
-                        records.append(i);
+                        records.append(decimalFormat.format(i));
                         records.append(CONFIG.FIELD_SEPARATOR);
                         records.append(df.format(get_k_value()));
                         records.append(CONFIG.FIELD_SEPARATOR);
@@ -88,7 +89,7 @@ public class Writer implements Runnable{
                     }
 
                     if (i > 0 && ((i % (table_size / 100) == 0) || i % 10000000 == 0)) {
-                        LOG.info(i + " records for table[" + table_name + "] has been generated ," + (int) (((double) i / table_size) * 100) + "% completed.");
+                        LOG.info(decimalFormat.format(i) + " records for table[" + table_name + "] has been generated ," + (int) (((double) i / table_size) * 100) + "% completed.");
                     }
                 }
 
@@ -123,7 +124,7 @@ public class Writer implements Runnable{
                         if (i < table_size - 1)
                             records.append(CONFIG.LINE_SEPARATOR);
                     } else {
-                        records.append(i);
+                        records.append(decimalFormat.format(i));
                         records.append(CONFIG.FIELD_SEPARATOR);
                         records.append(df.format(get_k_value()));
                         records.append(CONFIG.FIELD_SEPARATOR);
@@ -171,7 +172,7 @@ public class Writer implements Runnable{
                     }
 
                     if (i > 0 && ((i % (table_size / 100) == 0) || i % 10000000 == 0)) {
-                        LOG.info(i + " records for table[" + table_name + "] has been generated ," + (int) (((double) i / table_size) * 100) + "% completed.");
+                        LOG.info(decimalFormat.format(i) + " records for table[" + table_name + "] has been generated ," + (int) (((double) i / table_size) * 100) + "% completed.");
                     }
                 }
 

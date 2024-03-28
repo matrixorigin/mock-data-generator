@@ -116,7 +116,7 @@ fi
 if [ "${BENCHARMARK}" == "sysbench" ]; then
   java -Xms1024M -Xmx10240M -cp ${libJars} \
             -Dconf.yml=${CONF_YAML} \
-            io.mo.gendata.benchmark.sysbench.Generator --tables ${TABLES} --table_size ${TABLE_SIZE} --output $OUTPUT
+            io.mo.gendata.benchmark.sysbench.Generator --tables ${TABLES} --table_size ${TABLE_SIZE} --output $OUTPUT --file_count ${FILECOUNT}
 fi
 
 }
