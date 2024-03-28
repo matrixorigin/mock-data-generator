@@ -165,7 +165,7 @@ public class TableParser {
                 tab_map = yaml.getInfo(file.getPath());
                 System.out.println(file.getPath());
                 String t_name = (String)tab_map.get("name");
-                int count = (Integer) tab_map.get("count");
+                double count = Double.parseDouble(String.valueOf(tab_map.get("count")));
 
                 Table table = new Table();
                 table.setName(t_name);

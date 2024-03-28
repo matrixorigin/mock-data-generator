@@ -1,5 +1,6 @@
 package io.mo.gendata.meta;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.*;
 import io.mo.gendata.CoreAPI;
@@ -20,8 +21,8 @@ public class Table implements Runnable{
     private String name;
     private List<Field> fields = new ArrayList<Field>();
 
-    private int count = 0;
-    private AtomicInteger pos = new AtomicInteger(1);
+    private double count = 0;
+    private AtomicDouble pos = new AtomicDouble(1);
     private int offset = 0;
     private StringBuilder records = new StringBuilder();
 
@@ -83,11 +84,11 @@ public class Table implements Runnable{
         return fields;
     }
 
-    public int getCount() {
+    public double getCount() {
         return count;
     }
 
-    public void setCount(int count){
+    public void setCount(double count){
         this.count = count;
     }
 
@@ -128,7 +129,7 @@ public class Table implements Runnable{
     public void startTester(int threadCount,CountDownLatch latch){
             //if count > CONFIG.THRESHOLD_MUTIL_THREAD,start multiple  producer
         queues = new ArrayBlockingQueue[threadCount];
-        int batch = 0;
+        double batch = 0;
         for(int i = 0; i < queues.length;i++){
             queues[i] = new ArrayBlockingQueue(CONFIG.MAX_QUEUE_SIZE);
             batch = count / threadCount;
@@ -150,7 +151,7 @@ public class Table implements Runnable{
         }else {
             //if count > CONFIG.THRESHOLD_MUTIL_THREAD,start multiple  producer
             queues = new ArrayBlockingQueue[CONFIG.THREAD_COUNT];
-            int batch = 0;
+            double batch = 0;
             for(int i = 0; i < CONFIG.THREAD_COUNT;i++){
                 queues[i] = new ArrayBlockingQueue(CONFIG.MAX_QUEUE_SIZE);
                 batch = count / CONFIG.THREAD_COUNT;
@@ -169,7 +170,7 @@ public class Table implements Runnable{
             output.mkdirs();
         
         for(int i = 0; i < CONFIG.FILE_COUNT; i++) {
-            int batch = count/CONFIG.FILE_COUNT;
+            double batch = count/CONFIG.FILE_COUNT;
             if(i == CONFIG.FILE_COUNT - 1)
                 batch = batch + count%CONFIG.FILE_COUNT;
             Writer writer = new Writer(i,batch);
@@ -187,8 +188,8 @@ public class Table implements Runnable{
         
         LOG.info("Now start to write the data records for the table["+name+"],please waiting...................");
         long start = System.currentTimeMillis();
-        while (pos.intValue() < count){
-            int current = pos.intValue();
+        while (pos.doubleValue() < count){
+            double current = pos.doubleValue();
             if(current < CONFIG.BATCH_COUNT){
                 try {
                     Thread.sleep(1000);
@@ -199,14 +200,14 @@ public class Table implements Runnable{
                 continue;
             }
             if(current > CONFIG.BATCH_COUNT && current % CONFIG.THRESHOLD_MUTIL_THREAD == 0)
-                LOG.info(current + " records for table[" + name + "] has been generated ," + (int) (((double) current / count) * 100) + "% completed.");
+                LOG.info(current + " records for table[" + name + "] has been generated ," + (int) (( current / count) * 100) + "% completed.");
             
         }
         
         completed = true;
         service.shutdown();
         long end = System.currentTimeMillis();
-        LOG.info(count + " records for table[" + name + "] has been generated ," + (int) (((double) count / count) * 100) + "% completed.");
+        LOG.info(count + " records for table[" + name + "] has been generated ," + (int) (( count / count) * 100) + "% completed.");
         LOG.info("All the records for table["+name+"] has been generated completely,and costs "+(float)(end - start)/1000+" seconds.");
         
         //
@@ -277,11 +278,11 @@ public class Table implements Runnable{
      */
     private class Producer implements Runnable{
         private List<Field> t_fields = new ArrayList<Field>();
-        private int batch = 0;
+        private double batch = 0;
         private int id = 0;
         private StringBuilder record = new StringBuilder();
         private HashMap<String,Object> currentIndexValue = new HashMap<>();
-        public Producer(int id,int batch){
+        public Producer(int id,double batch){
             this.id = id;
             this.batch = batch;
             for(int i = 0; i < fields.size();i++){
@@ -343,14 +344,14 @@ public class Table implements Runnable{
 
     private class Tester implements Runnable{
         private List<Field> t_fields = new ArrayList<Field>();
-        private int batch = 0;
+        private double batch = 0;
         private int id = 0;
         private StringBuilder record = new StringBuilder();
         private HashMap<String,Object> currentIndexValue = new HashMap<>();
         private CountDownLatch latch = null;
 
         CoreAPI api = new CoreAPI();
-        public Tester(int id,int batch,CountDownLatch latch){
+        public Tester(int id,double batch,CountDownLatch latch){
             this.id = id;
             this.batch = batch;
             for(int i = 0; i < fields.size();i++){
@@ -421,11 +422,11 @@ public class Table implements Runnable{
 
     private class Writer implements Runnable {
 
-        private int batch;
+        private double batch;
 
         private int id = 0;
 
-        public Writer(int id, int batch) {
+        public Writer(int id, double batch) {
             this.id = id;
             this.batch = batch;
         }
@@ -590,7 +591,10 @@ public class Table implements Runnable{
     }
     
     public static void main(String args[]) {
-        Table table = new Table();
-        table.test(5);
+        //Table table = new Table();
+        //table.test(5);
+        AtomicDouble ad = new AtomicDouble(5000000000.0);
+        System.out.println(String.valueOf(ad.doubleValue())+"fdasfads");
+        
     }
 }

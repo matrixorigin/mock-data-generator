@@ -58,7 +58,7 @@ public class Writer implements Runnable{
                     System.exit(1);
                 }
 
-                for (int i = 0; i < table_size; i++) {
+                for (double i = 0; i < table_size; i++) {
                     if (auto_incr) {
                         records.append(CONFIG.NULL_VALUE);
                         records.append(CONFIG.FIELD_SEPARATOR);
@@ -111,7 +111,7 @@ public class Writer implements Runnable{
                 String uploadId = initiateMultipartUploadResult.getUploadId();
                 List<PartETag> partETags = new ArrayList<>();
 
-                for (int i = 0; i < table_size; i++) {
+                for (double i = 0; i < table_size; i++) {
                     if (auto_incr) {
                         records.append(CONFIG.NULL_VALUE);
                         records.append(CONFIG.FIELD_SEPARATOR);
