@@ -5,6 +5,7 @@ import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.*;
 import io.mo.gendata.CoreAPI;
 import io.mo.gendata.constant.CONFIG;
+import io.mo.gendata.constant.DATA;
 import io.mo.gendata.cos.COSUtils;
 import io.mo.gendata.util.ConfUtil;
 import org.apache.log4j.Logger;
@@ -315,6 +316,9 @@ public class Table implements Runnable{
             for(int i = 0 ; i < t_fields.size(); i++){
                 Field t_field = t_fields.get(i);
                 Object nextValue = t_field.nextValue();
+                if(DATA.COLUMN_PREFIX.containsKey(t_field.getName())){
+                    DATA.COLUMN_PREFIX.put(t_field.getName(),nextValue.toString());
+                }
                 if(t_field.isIndex()){
                     Index index = indexMap.get(t_field.getIndex());
                     if(!index.indexValueExisted(nextValue)){

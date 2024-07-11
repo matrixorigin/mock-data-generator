@@ -1,5 +1,6 @@
 package io.mo.gendata.util;
 
+import io.mo.gendata.constant.DATA;
 import io.mo.gendata.meta.Field;
 import io.mo.gendata.meta.Prefix;
 import io.mo.gendata.meta.Table;
@@ -113,7 +114,9 @@ public class TableParser {
                                 prefix = new Prefix(start,end);
 
                                 field.setPrefix(prefix);
-                            }else {
+                                
+                            //if the prefix is another column value
+                            } else {
                                 //if the prefix is enum
                                 String[] pValues = f_prefix.split(",");
                                 prefix = new Prefix();
@@ -179,7 +182,10 @@ public class TableParser {
                     String f_name = (String)field_map.get("name");
                     String f_type = (String)field_map.get("type");
                     String f_builtin = (String)field_map.get("builtin");
-                    String f_enum = (String)field_map.get("enum");
+                    String f_enum = null;
+                    if(field_map.get("enum") != null) {
+                        f_enum = String.valueOf(field_map.get("enum"));
+                    }
                     String f_index = (String)field_map.get("index");
                     String f_ref = (String)field_map.get("ref");
                     String f_prefix = (String)field_map.get("prefix");
@@ -241,7 +247,15 @@ public class TableParser {
                             prefix = new Prefix(start,end);
 
                             field.setPrefix(prefix);
-                        }else {
+                            
+                        //if the prefix is another column value
+                        }else if(f_prefix.startsWith("$")){
+                            String columnName = f_prefix.replace("$","");
+                            prefix = new Prefix(columnName);
+                            field.setPrefix(prefix);
+                            DATA.COLUMN_PREFIX.put(columnName,null);
+                        }
+                        else {
                             //if the prefix is enum
                             String[] pValues = f_prefix.split(",");
                             prefix = new Prefix();

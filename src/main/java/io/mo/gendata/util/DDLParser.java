@@ -377,6 +377,7 @@ public class DDLParser {
                 items[index + 1].toLowerCase().startsWith("timestamp")
 
         ){
+            items[index + 1] = "datetime";
             return true;
         }
 

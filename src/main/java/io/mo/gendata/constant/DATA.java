@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DATA {
@@ -23,6 +25,8 @@ public class DATA {
     public static DateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     public static Date START_DATE;
     public static Date END_DATE;
+    
+    public static Map<String,String> COLUMN_PREFIX = new HashMap<>();
 
     static {
         try {

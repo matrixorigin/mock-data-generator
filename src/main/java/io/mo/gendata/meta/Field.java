@@ -369,12 +369,13 @@ public class Field {
                 }
             }
         }
+
         
         if(_enum.size() > 0){
            int index = RandomUtils.nextInt(0,_enum.size());
            value = _enum.get(index);
         }
-
+        
 
         if(prefix != null ){
             value = prefix.getValue()+ value;

@@ -386,7 +386,7 @@ public class CoreAPI {
         //float f = 2/100;
         //System.out.println(f);
         for(int i = 0; i < 100; i++){
-            System.out.println(faker.nextUUID());
+            System.out.println(faker.nextInt(1,100));
         }
     }
     
