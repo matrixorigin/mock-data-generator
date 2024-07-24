@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Generator {
-    public static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    public static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private static Logger LOG = Logger.getLogger(Generator.class.getName());
     
