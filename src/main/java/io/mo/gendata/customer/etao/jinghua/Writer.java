@@ -27,7 +27,7 @@ public class Writer implements Runnable{
 
     private StringBuilder records = new StringBuilder(60000000);
 
-    public static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    public static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
     private CountDownLatch latch = null;
     private static Logger LOG = Logger.getLogger(Writer.class.getName());
