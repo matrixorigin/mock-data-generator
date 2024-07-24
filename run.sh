@@ -6,7 +6,10 @@ if [[ $# -eq 0 ]];then
     OUTPUT="data"
 fi
 FILECOUNT=0
-ARGS=`getopt -o c:o:h -l help,test:,file_count:,parse:,benchmark:,config:,output:,tables:,table_size:,auto_inc: -- "$@"`
+TABLE_SIZE=0
+STARTTIME=$(date "+%Y-%m-%d %H:%M:%S")
+
+ARGS=`getopt -o c:o:h -l help,test:,file_count:,parse:,benchmark:,customer:,config:,output:,tables:,table_size:,auto_inc:,starttime: -- "$@"`
 echo "ARGS=${ARGS}"
 eval set -- "${ARGS}"
 while :
@@ -19,11 +22,13 @@ do
     --table_size) TABLE_SIZE=$2; shift ;;
     --auto_inc) AUTO_INCR=$2; shift ;;
     --benchmark) BENCHARMARK=$2; shift ;;
+    --customer) CUSTOMER=$2; shift ;;
+    --starttime) STARTTIME=$2; shift ;;
     --file_count) FILECOUNT=$2; shift ;;
     --parse) DDLFILE=$2; shift ;;
     --test) TEST=$2; shift ;;
     --) shift ; break ;;
-    *) echo "Invalid option: $1" exit 1 ;;
+    *) echo "Invalid option: $1"; exit 1 ;;
   esac
   shift 
 done 
@@ -33,10 +38,12 @@ if [ "${HELP}" == "true" ];then
     echo -e "\n   -h  show scripts usage.\n   -c  provide the input table definition file or directory."
     echo -e "   -o provide output path for table data,optional."
     echo -e "   --benchmark the benchmark name, and if specified, will generate data for this benchmark."
+    echo -e "   --customer the customer name, and if specified, will generate data for this customer. values[etao-jinghua]"
     echo -e "   --parse parse the ddl file to generate table config definition"
     echo -e "   --tables  table count for benchmark[sysbench]."
     echo -e "   --table_size  table size for benchmark[sysbench]."
     echo -e "   --auto_inc  whether table is auto_increment for benchmark[sysbench].\n"
+    echo -e "   --starttime the start time for customer[etao-jinghua]."
     echo -e "Examples:\n"
     echo "   bash rush.sh -i def -o data"
     echo -e "   bash boot.sh -i def/template.yaml -o mydata \n"
@@ -100,8 +107,10 @@ if [ ! -z "${TEST}" ]; then
             io.mo.gendata.Faker --config ${CONFIG} --output ./data/ --test ${TEST}
   exit 0
 fi
+
 echo "file_count=${FILECOUNT}"
-if [ -z "${BENCHARMARK}" ]; then
+
+if [ -z "${BENCHARMARK}" ] && [ -z "${CUSTOMER}" ]; then
   if [ -z "${DDLFILE}" ];then
     java -Xms1024M -Xmx10240M -cp ${libJars} \
           -Dconf.yml=${CONF_YAML} \
@@ -117,6 +126,12 @@ if [ "${BENCHARMARK}" == "sysbench" ]; then
   java -Xms1024M -Xmx10240M -cp ${libJars} \
             -Dconf.yml=${CONF_YAML} \
             io.mo.gendata.benchmark.sysbench.Generator --tables ${TABLES} --table_size ${TABLE_SIZE} --output $OUTPUT --file_count ${FILECOUNT}
+fi
+
+if [ "${CUSTOMER}" == "etao-jinghua" ]; then
+  java -Xms1024M -Xmx10240M -cp ${libJars} \
+            -Dconf.yml=${CONF_YAML} \
+            io.mo.gendata.customer.etao.jinghua.Generator --table_size ${TABLE_SIZE} --starttime "${STARTTIME}"
 fi
 
 }
