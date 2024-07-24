@@ -27,8 +27,8 @@ public class Generator {
         
         Options options = new Options();
         options.addOption("","table_size",true,"For ETAO JINGHUA customer, set row count of the table");
-        options.addOption("s","starttime",true,"For ETAO JINGHUA customer, set starttime of table data");
-        
+        options.addOption("","starttime",true,"For ETAO JINGHUA customer, set starttime of table data");
+        options.addOption("o","output",true,"the output dir that table data is generated");
         
         CommandLineParser parser = new DefaultParser();
         try {
@@ -40,12 +40,17 @@ public class Generator {
                 if(count == 0){
                     count = DATA.DEFAUT_COUNT;
                 }
-                LOG.info("The row count is" + cmd.getOptionValue("table_size"));
+                LOG.info("The row count is" + count);
             }
 
             if(cmd.hasOption("starttime")) {
                 DATA.STARTTIME.setTime(format.parse(cmd.getOptionValue("starttime")));
                 LOG.info("The starttime is" + cmd.getOptionValue("starttime"));
+            }
+
+            if(cmd.hasOption("output")) {
+                CONFIG.OUTPUT = cmd.getOptionValue("output");
+                LOG.info("The data output dir is" + cmd.getOptionValue("output"));
             }
             
         } catch (ParseException e) {

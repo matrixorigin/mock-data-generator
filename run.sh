@@ -131,7 +131,7 @@ fi
 if [ "${CUSTOMER}" == "etao-jinghua" ]; then
   java -Xms1024M -Xmx10240M -cp ${libJars} \
             -Dconf.yml=${CONF_YAML} \
-            io.mo.gendata.customer.etao.jinghua.Generator --table_size ${TABLE_SIZE} --starttime "${STARTTIME}"
+            io.mo.gendata.customer.etao.jinghua.Generator --table_size ${TABLE_SIZE} --starttime "${STARTTIME}" --output $OUTPUT
 fi
 
 }
