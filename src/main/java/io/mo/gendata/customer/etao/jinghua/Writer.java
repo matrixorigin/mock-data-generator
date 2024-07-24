@@ -116,7 +116,6 @@ public class Writer implements Runnable{
                     }
 
                     if (records.length() > 0) {
-                        System.out.println(records.length());
                         writer.write(records.toString());
                         writer.flush();
                     }
