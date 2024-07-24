@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -122,7 +123,7 @@ public class Writer implements Runnable{
 
                     i += DATA.BATCH_SIZE;
                     //LOG.info(decimalFormat.format(i) + " records for file[%s] has been generated ," + (int) (((double) i / count) * 100) + "% completed.");
-                    LOG.info(String.format("%s records for file[%s] has been generated ,%d%% completed", decimalFormat.format(i), "device" + id + ".tbl", (int) ((i / count) * 100)));
+                    LOG.info(String.format(" %s %s records for file[%s] has been generated ,%d%% completed", datetime,decimalFormat.format(i), "device" + id + ".tbl", (int) ((i / count) * 100)));
                 }
 
                 writer.close();
@@ -204,7 +205,7 @@ public class Writer implements Runnable{
 
                     i += DATA.BATCH_SIZE;
                     //LOG.info(decimalFormat.format(i) + " records for file[%s] has been generated ," + (int) (((double) i / count) * 100) + "% completed.");
-                    LOG.info(String.format("%s records for file[%s] has been generated ,%d%% completed", decimalFormat.format(i), "device" + id + ".tbl", (int) ((i / count) * 100)));
+                    LOG.info(String.format("%s %s records for file[%s] has been generated ,%d%% completed", datetime, decimalFormat.format(i), "device" + id + ".tbl", (int) ((i / count) * 100)));
 
                 }
     
@@ -259,13 +260,16 @@ public class Writer implements Runnable{
     }
     
     public static void main(String[] args){
-//        CountDownLatch latch1 = new CountDownLatch(2);
-//        Writer writer1 = new Writer(0,1000000,latch1);
-//        Writer writer2 = new Writer(1,1000000,latch1);
-//        Thread t1 = new Thread(writer1);
-//        Thread t2 = new Thread(writer2);
-//        t1.start();
-//        t2.start();
-        System.out.println(4000000.0 % DATA.BATCH_SIZE);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        Calendar STARTTIME = Calendar.getInstance();
+        try {
+            STARTTIME.setTime(format.parse("2024-07-24 01:00:00.000"));
+            for(int i = 0; i < 5000; i++){
+                STARTTIME.add(Calendar.SECOND,1);
+                System.out.println(format.format(STARTTIME.getTime()));
+            }
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
