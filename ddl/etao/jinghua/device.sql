@@ -1,4 +1,4 @@
-CREATE TABLE `device` (
+CREATE TABLE `t_device` (
   `create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   `device_type` VARCHAR(10) NOT NULL COMMENT '设备类型',
   `tag` JSON DEFAULT NULL COMMENT '设备标签组',

@@ -12,9 +12,9 @@ public class DATA {
     public static double BATCH_SIZE = 30*3000*5;
     public static Calendar STARTTIME = Calendar.getInstance();
     
-    public static String[] DEVICE_TYPES = {"芯片","电路板","插槽"};
-    public static String[] TAG_NAMES = {"产线","面板","设备编码"};
-    public static String[] METRICS_NAMES = {"长度","高度","宽度","湿度","温度"};
+    public static String[] DEVICE_TYPES = {"CPU","BOARD","SLOT"};
+    public static String[] TAG_NAMES = {"LINE","PANEL","CODE"};
+    public static String[] METRICS_NAMES = {"LENGTH","HEIGHT","WIDTH","HUMIDITY","TEMPERATURE"};
     
     
     public synchronized static Date getDateTime(){
