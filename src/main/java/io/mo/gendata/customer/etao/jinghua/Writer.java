@@ -24,7 +24,7 @@ public class Writer implements Runnable{
     
     private Random random = new Random();
 
-    private StringBuilder records = new StringBuilder(50000000);
+    private StringBuilder records = new StringBuilder(60000000);
 
     public static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     
@@ -116,6 +116,7 @@ public class Writer implements Runnable{
                     }
 
                     if (records.length() > 0) {
+                        System.out.println(records.length());
                         writer.write(records.toString());
                         writer.flush();
                     }
