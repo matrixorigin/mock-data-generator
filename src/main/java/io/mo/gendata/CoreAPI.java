@@ -3,22 +3,22 @@ package io.mo.gendata;
 import cn.binarywang.tools.generator.ChineseIDCardNumberGenerator;
 import cn.binarywang.tools.generator.base.GenericGenerator;
 import cn.hutool.json.JSONObject;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import io.mo.gendata.builtin.CarUtils;
 import io.mo.gendata.builtin.DataFaker;
-import io.mo.gendata.builtin.JSONUtils;
 import io.mo.gendata.builtin.UUID;
 import io.mo.gendata.constant.CONFIG;
 import io.mo.gendata.constant.DATA;
-import org.apache.commons.lang3.RandomStringUtils;
+import io.mo.gendata.data.FileGroupData;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -38,6 +38,8 @@ public class CoreAPI {
     private Random random = new Random();
     
     private UUID uuid = new UUID();
+    
+    private String fileGroupTag;
     
     // autoincrement
     public String getAutoIncrement(){
@@ -114,7 +116,33 @@ public class CoreAPI {
 
     //builtin filed: name
     
-    
+    public String getFileData(String path,int cid,int gid){
+        if(gid == -1){
+            return DATA.FILES.get(path).row()[cid];
+        }else {
+            
+            if(DATA.FILEGROUPDATA.containsKey(fileGroupTag)){
+                List<FileGroupData> fileGroupDataList = DATA.FILEGROUPDATA.get(fileGroupTag);
+                for(int i = 0; i < fileGroupDataList.size();i++){
+                    FileGroupData fileGroupData = fileGroupDataList.get(i);
+                    if(fileGroupData.getPath().equalsIgnoreCase(path) &&
+                            fileGroupData.getGid() == gid){
+                        return fileGroupData.getRow()[cid];
+                    }
+                }
+                
+                String[] row = DATA.FILES.get(path).row();
+                fileGroupDataList.add(new FileGroupData(path,gid,row));
+                return row[cid];
+            }else {
+                String[] row = DATA.FILES.get(path).row();
+                List<FileGroupData> fileGroupDataList = new ArrayList();
+                fileGroupDataList.add(new FileGroupData(path,gid,row));
+                DATA.FILEGROUPDATA.put(fileGroupTag,fileGroupDataList);
+                return row[cid];
+            }
+        }
+    }
     
     
     public String getUnique(){
@@ -377,9 +405,16 @@ public class CoreAPI {
 
         return json.toString();
     }
-    
-    
-    
+
+
+    public String getFileGroupTag() {
+        return fileGroupTag;
+    }
+
+    public void setFileGroupTag(String fileGroupTag) {
+        this.fileGroupTag = fileGroupTag;
+    }
+
     public static void main(String args[]){
         Faker us_faker = new Faker(Locale.US);
         CoreAPI faker = new CoreAPI();

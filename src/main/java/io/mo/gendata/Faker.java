@@ -33,12 +33,12 @@ public class Faker {
             CommandLine cmd = parser.parse(options, args);
             if(cmd.hasOption("config")) {
                 CONFIG.INPUT = String.valueOf(cmd.getOptionValue("config"));
-                LOG.info("The config file or dir is " + cmd.getOptionValue("tables"));
+                LOG.info("The config file or dir is " + cmd.getOptionValue("config"));
             }
 
             if(cmd.hasOption("parse")) {
                 CONFIG.INPUT = String.valueOf(cmd.getOptionValue("parse"));
-                LOG.info("The ddl file or dir that nedd to be parsed is  " + cmd.getOptionValue("tables"));
+                LOG.info("The ddl file or dir that nedd to be parsed is  " + cmd.getOptionValue("parse"));
                 parseDDL = true;
             }
 
@@ -88,7 +88,7 @@ public class Faker {
             
             return;
         }
-
+        
         //define a thread pool,each table use a thread
         ExecutorService service = Executors.newFixedThreadPool(tables.size());
 

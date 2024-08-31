@@ -2,8 +2,10 @@ package io.mo.gendata.meta;
 
 import io.mo.gendata.CoreAPI;
 import io.mo.gendata.constant.CONFIG;
+import io.mo.gendata.constant.DATA;
 import io.mo.gendata.constant.FIELDATTR;
 import io.mo.gendata.constant.MAPPING;
+import io.mo.gendata.data.FileData;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.log4j.Logger;
 
@@ -20,13 +22,16 @@ public class Field {
     private String name;
     private String type;
     
-
     private String builtin;
-
-
+    
     private String index;
     private String ref;
     private int null_ratio = 100;
+    
+    //for type file
+    private String path;
+    private int column_index = 0;
+    private int group = -1;
 
     private ArrayList<String> _enum = new ArrayList();
     private Prefix prefix = null;
@@ -156,6 +161,37 @@ public class Field {
         return true;
     }
 
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+        if(!DATA.FILES.containsKey(path)){
+            FileData fileData = new FileData(path);
+            DATA.FILES.put(path,fileData);
+        }
+    }
+
+    public int getColumn_index() {
+        return column_index;
+    }
+
+    public void setColumn_index(int column_index) {
+        this.column_index = column_index;
+    }
+
+    public int getGroup() {
+        return group;
+    }
+
+    public void setGroup(int group) {
+        this.group = group;
+    }
+    
+    public void setGroupTag(String groupTag){
+        api.setFileGroupTag(groupTag);
+    }
 
     public void setType(String type) {
         if(type == null) return;
@@ -367,6 +403,11 @@ public class Field {
                     value = api.nextVector(dismension);
                     break;
                 }
+
+                case FIELDATTR.FILE_TYPE: {
+                    value = api.getFileData(path,column_index,group);
+                    break;
+                }
             }
         }
 
@@ -406,6 +447,11 @@ public class Field {
         field.setRef(ref);
         field.setNull_ratio(null_ratio);
         field.setPrefix(prefix);
+        if(type.equalsIgnoreCase(FIELDATTR.FILE_TYPE)) {
+            field.setPath(path);
+            field.setGroup(group);
+            field.setColumn_index(column_index);
+        }
         //System.out.println(field.getPrefixList().size());
         return field;
     }

@@ -10,6 +10,7 @@ public class FIELDATTR {
     public static final String UUID_TYPE = "uuid";
     public static final String CHAR_TYPE = "char";
     public static final String VECTOR_TYPE = "vector";
+    public static final String FILE_TYPE = "file";
     public static final String JSON_TYPE = "json";
     public static final String UNIQUE_BUILTIN = "unique";
     public static final String  NAME_BUILTIN = "name";

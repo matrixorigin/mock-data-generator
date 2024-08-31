@@ -290,7 +290,10 @@ public class Table implements Runnable{
             this.id = id;
             this.batch = batch;
             for(int i = 0; i < fields.size();i++){
-                t_fields.add(fields.get(i).clone());
+                Field field = fields.get(i).clone();
+                //set file group tag
+                field.setGroupTag("producer"+id);
+                t_fields.add(field);
             }
         }
         
@@ -345,6 +348,7 @@ public class Table implements Runnable{
                 else 
                     record.append(CONFIG.LINE_SEPARATOR);
             }
+            DATA.FILEGROUPDATA.remove("producer"+id);
             return record.toString();
         }
     }

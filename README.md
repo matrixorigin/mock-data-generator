@@ -8,26 +8,30 @@ Mock-Data-Generator is a java-based tool to generate data for mostly table data 
 ## 1. config table definition
 
   ```
-  tables:
-  - name: sample1         #Table name
-    count: 10             #The count of table data
-    columns:
-      - name: id          #The column name
-        type: auto        #The column type, the tool support some typies that will be described in following phase
-      - name: name      
-        builtin: name     #The builtin type, the tool provides lots of builtin type that will be described in following phase
-        #Prefixes
-        #There are 2 types of prefix:
-        #1. enum: format ES001,DA002
-        #2. random number: format (10000,20000)
-        prefix: ES001,DA002 
-        null_ratio: 10    #the percentage of null value
-      - name: proviceId
-        enum: 11,12,13,14 #The enum type, values is separated by [,].
-        index: proviceId  #The index tag,means each mutiple tuple[a,b,c] in which b and c is bound to a is immutable.
-      - name: proviceName
-        enum: 安徽,江苏,上海,杭州,黑龙江,吉林,北京,新疆,上冻,fdasf,fdasfd
-        ref: proviceId    #The ref tag,means this column is bound to index which name is "proviceId" 
+name: sample1         #Table name
+count: 10             #The count of table data
+columns:
+  - name: id          #The column name
+    type: auto        #The column type, the tool support some typies that will be described in following phase
+  - name: name      
+    builtin: name     #The builtin type, the tool provides lots of builtin type that will be described in following phase
+    #Prefixes
+    #There are 2 types of prefix:
+    #1. enum: format ES001,DA002
+    #2. random number: format (10000,20000)
+    prefix: ES001,DA002 
+    null_ratio: 10    #the percentage of null value
+  - name: proviceId
+    enum: 11,12,13,14 #The enum type, values is separated by [,].
+    index: proviceId  #The index tag,means each mutiple tuple[a,b,c] in which b and c is bound to a is immutable.
+  - name: proviceName
+    enum: 安徽,江苏,上海,杭州,黑龙江,吉林,北京,新疆,山东
+    ref: proviceId    #The ref tag,means this column is bound to index which name is "proviceId" 
+  - name: age
+    type: file #only support csv file
+    path: "/data/data.csv" #only support absolute path
+    column: 2 # The column_index tag, means return the specific column value from file which index is [column_index]
+    group: 1 # Means all columns with the same file group will get values from a the row
   ```
 
 ## 2. execute `./run.sh`

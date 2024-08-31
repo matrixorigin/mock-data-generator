@@ -1,10 +1,14 @@
 package io.mo.gendata.constant;
 
+import io.mo.gendata.data.FileData;
+import io.mo.gendata.data.FileGroupData;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,6 +31,10 @@ public class DATA {
     public static Date END_DATE;
     
     public static Map<String,String> COLUMN_PREFIX = new HashMap<>();
+    
+    public static Map<String, FileData> FILES = new HashMap<>();
+    
+    public static Map<String, List<FileGroupData>> FILEGROUPDATA = new HashMap<>();
 
     static {
         try {
