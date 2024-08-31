@@ -278,7 +278,7 @@ public class TableParser {
                         field.setNull_ratio(f_null_ratio);
                     }
                     
-                    if(f_type.equalsIgnoreCase(FIELDATTR.FILE_TYPE)) {
+                    if(f_type!=null && f_type.equalsIgnoreCase(FIELDATTR.FILE_TYPE)) {
                         if (f_path == null) {
                             LOG.error(String.format("The path must be set for column[%s] with file type, please check....", f_name));
                             System.exit(1);

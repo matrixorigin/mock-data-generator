@@ -447,7 +447,7 @@ public class Field {
         field.setRef(ref);
         field.setNull_ratio(null_ratio);
         field.setPrefix(prefix);
-        if(type.equalsIgnoreCase(FIELDATTR.FILE_TYPE)) {
+        if(type != null && type.equalsIgnoreCase(FIELDATTR.FILE_TYPE)) {
             field.setPath(path);
             field.setGroup(group);
             field.setColumn_index(column_index);
