@@ -34,7 +34,7 @@ public class DATA {
     
     public static Map<String, FileData> FILES = new HashMap<>();
     
-    public static Map<String, List<FileGroupData>> FILEGROUPDATA = new HashMap<>();
+    public static Map<String, List<FileGroupData>> FILEGROUPDATA = new ConcurrentHashMap<>();
 
     static {
         try {
