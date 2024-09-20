@@ -17,10 +17,7 @@ import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 
 public class CoreAPI {
     private static Logger LOG = Logger.getLogger(CoreAPI.class.getName());
@@ -78,6 +75,10 @@ public class CoreAPI {
     public String nextDateTime(){
         return dt_format.format(faker.date().between(DATA.START_DATE,DATA.END_DATE));
 
+    }
+
+    public String nextDateTime(Date from, Date to){
+        return dt_format.format(faker.date().between(from,to));
     }
 
     //fake random varchar

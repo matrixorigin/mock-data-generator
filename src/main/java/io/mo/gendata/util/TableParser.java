@@ -10,6 +10,9 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +25,7 @@ public class TableParser {
     private static Map input = null;
     private static Map tab_map = null;
     private static Logger LOG = Logger.getLogger(TableParser.class.getName());
+    public static DateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 //
 //    public static void parse_old(String path){
 //        File file = new File(path);
@@ -193,8 +197,9 @@ public class TableParser {
                     int f_c_index = field_map.get("column") == null?0:(int)field_map.get("column");
                     int f_group = field_map.get("group") == null?-1:(int)field_map.get("group");
                     int f_null_ratio = field_map.get("null_ratio") == null?100:(int)field_map.get("null_ratio");
+                    String f_from = (String)field_map.get("from");
+                    String f_to = (String)field_map.get("to");
                     
-
                     if(f_builtin == null && f_type == null && f_enum == null) {
                         LOG.error("The column[" + f_name + "] in table[" + table.getName() + "] must one of attributes[type,builtin,ref,enum].please check.");
                         System.exit(1);
@@ -273,6 +278,23 @@ public class TableParser {
 
                     if(f_ref != null)
                         field.setRef(f_ref);
+                    
+                    try {
+                        if (f_from != null)
+                            field.setFrom(DATETIME_FORMAT.parse(f_from));
+                        else 
+                            field.setFrom(DATETIME_FORMAT.parse("1970-01-01 00:00:01"));
+                        
+                        if(f_to != null)
+                            field.setTo(DATETIME_FORMAT.parse(f_to));
+                        else
+                            field.setTo(DATETIME_FORMAT.parse("2030-13-31 23:59:59"));
+                        
+                    }catch (ParseException e) {
+                        LOG.error("The Date or DateTime["+f_from+"] is not the well-formatted,please check.");
+                        e.printStackTrace();
+                        System.exit(1);
+                    }
 
                     if(f_null_ratio < 100){
                         field.setNull_ratio(f_null_ratio);
@@ -303,7 +325,7 @@ public class TableParser {
                 LOG.error("The input file["+path+"] is not the well-yaml-formatted,please check.");
                 e.printStackTrace();
                 System.exit(1);
-            }
+            } 
         }else {
             LOG.error("The input file["+path+"] does not exist,please check.");
             System.exit(1);

@@ -11,10 +11,9 @@ import org.apache.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Field {
@@ -37,6 +36,8 @@ public class Field {
     private Prefix prefix = null;
     private List<Object> paras = new ArrayList<Object>();
     private Method method;
+    private Date from;
+    private  Date to;
     
 
     private static Logger LOG = Logger.getLogger(Field.class.getName());
@@ -374,7 +375,7 @@ public class Field {
                     break;
                 }
                 case FIELDATTR.DATETIME_TYPE : {
-                    value = api.nextDateTime();
+                    value = api.nextDateTime(from,to);
                     break;
                 }
                 case FIELDATTR.VARCHAR_TYPE : {
@@ -434,6 +435,22 @@ public class Field {
         this.api = api;
     }
 
+    public Date getFrom() {
+        return from;
+    }
+
+    public void setFrom(Date from) {
+        this.from = from;
+    }
+
+    public Date getTo() {
+        return to;
+    }
+
+    public void setTo(Date to) {
+        this.to = to;
+    }
+
     public Field clone(){
         Field field = new Field();
         field.setName(name);
@@ -452,6 +469,8 @@ public class Field {
             field.setGroup(group);
             field.setColumn_index(column_index);
         }
+        field.setFrom(from);
+        field.setTo(to);
         //System.out.println(field.getPrefixList().size());
         return field;
     }

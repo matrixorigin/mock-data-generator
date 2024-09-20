@@ -116,7 +116,7 @@ public class Faker {
         if(ConfUtil.getBatchSize() != 0)
             CONFIG.BATCH_COUNT = ConfUtil.getBatchSize();
 
-        if(ConfUtil.getFileCount() != 0 && CONFIG.FILE_COUNT == 0) {
+        if(ConfUtil.getFileCount() != 0 ) {
             CONFIG.FILE_COUNT = ConfUtil.getFileCount();
         }
         
