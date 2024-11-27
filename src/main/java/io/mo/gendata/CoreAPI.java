@@ -59,7 +59,7 @@ public class CoreAPI {
         if(s_l >= DATA.MAXVALUE.length) s_l = DATA.MAXVALUE.length/2;
         int s_n = nextInt(0,DATA.MAXVALUE[s_l]) + 1;
 
-        int i_l = length - s_l;
+        int i_l = length - scale;
         if(i_l >= DATA.MAXVALUE.length) i_l = DATA.MAXVALUE.length/2;
         int i_n = nextInt(0,DATA.MAXVALUE[i_l]);
 
